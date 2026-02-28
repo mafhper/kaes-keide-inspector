@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kaes Keid Inspector</title>
+    <style>
+        :root {
+            --kk-bg-base: #0a0a0f;
+            --kk-bg-surface: #121216;
+            --kk-bg-raised: #1a1a1f;
+            --kk-text-primary: #f8fafc;
+            --kk-text-secondary: #94a3b8;
+            --kk-text-muted: #64748b;
+            --kk-border: rgba(255, 255, 255, 0.08);
+            --kk-accent: #8b5cf6;
+            --kk-accent-glow: rgba(139, 92, 246, 0.2);
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            background-color: var(--kk-bg-base);
+            color: var(--kk-text-primary);
+            line-height: 1.5;
+            overflow-x: hidden;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 8rem 2rem 4rem;
+            text-align: center;
+            max-width: 800px;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            background: radial-gradient(circle, var(--kk-accent-glow) 0%, transparent 60%);
+            z-index: -1;
+            pointer-events: none;
+        }
+
+        .badge {
+            display: inline-block;
+            background-color: var(--kk-bg-raised);
+            color: var(--kk-accent);
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 600;
+            margin-bottom: 2rem;
+            border: 1px solid var(--kk-border);
+            letter-spacing: 0.05em;
+        }
+
+        h1 {
+            font-size: 4rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(to right, #fff, var(--kk-text-secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.25rem;
+            color: var(--kk-text-secondary);
+            margin-bottom: 3rem;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .cta-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.75rem;
+            background-color: var(--kk-accent);
+            color: white;
+            text-decoration: none;
+            padding: 1rem 2rem;
+            border-radius: 12px;
+            font-size: 1.125rem;
+            font-weight: 600;
+            transition: all 0.2s ease;
+            box-shadow: 0 4px 20px var(--kk-accent-glow);
+        }
+
+        .cta-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.4);
+            filter: brightness(1.1);
+        }
+
+        /* Features Section */
+        .features-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem 8rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+        }
+
+        .card {
+            background-color: var(--kk-bg-surface);
+            border: 1px solid var(--kk-border);
+            border-radius: 20px;
+            overflow: hidden;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+            border-color: rgba(255, 255, 255, 0.15);
+        }
+
+        .card-img-container {
+            height: 200px;
+            background-color: var(--kk-bg-raised);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-bottom: 1px solid var(--kk-border);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .card-img-container::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to bottom, transparent, rgba(0,0,0,0.1));
+            pointer-events: none;
+        }
+
+        .card-content {
+            padding: 2rem;
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.75rem;
+            color: var(--kk-text-primary);
+        }
+
+        .card-desc {
+            color: var(--kk-text-secondary);
+            font-size: 0.95rem;
+            line-height: 1.6;
+        }
+
+        /* SVG Styles */
+        svg.illustration {
+            width: 80%;
+            height: 80%;
+        }
+
+        .svg-accent { fill: var(--kk-accent); }
+        .svg-bg { fill: var(--kk-bg-surface); }
+        .svg-border { stroke: var(--kk-border); stroke-width: 2; }
+        .svg-text { fill: var(--kk-text-secondary); }
+
+        /* Footer */
+        footer {
+            border-top: 1px solid var(--kk-border);
+            padding: 3rem 2rem;
+            text-align: center;
+            color: var(--kk-text-muted);
+            font-size: 0.875rem;
+        }
+
+        footer a {
+            color: var(--kk-text-secondary);
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        footer a:hover {
+            color: var(--kk-accent);
+        }
+
+        @media (max-width: 768px) {
+            h1 { font-size: 3rem; }
+            .hero { padding-top: 6rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <header class="hero">
+        <div class="badge">Chrome Extension</div>
+        <h1>Effortless Design & Tech Inspection</h1>
+        <p class="subtitle">Instantly extract CSS details, detect modern layouts, export stunning color palettes, and analyze a site's technology stack with a single click.</p>
+        <a href="#" class="cta-btn">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="7 10 12 15 17 10"></polyline><line x1="12" y1="15" x2="12" y2="3"></line></svg>
+            Add to Chrome (Free)
+        </a>
+    </header>
+
+    <main class="features-container">
+        <div class="grid">
+
+            <!-- Card 1: Inspect Elements -->
+            <div class="card">
+                <div class="card-img-container">
+                    <svg class="illustration" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="50" y="30" width="120" height="90" rx="8" class="svg-bg svg-border"/>
+                        <rect x="70" y="50" width="80" height="15" rx="4" class="svg-text" opacity="0.3"/>
+                        <rect x="70" y="75" width="60" height="10" rx="4" class="svg-text" opacity="0.2"/>
+
+                        <g transform="translate(190, 40)">
+                            <rect width="80" height="100" rx="6" fill="#1e1e24" class="svg-border"/>
+                            <rect x="10" y="15" width="40" height="6" rx="3" fill="#fff" opacity="0.8"/>
+                            <rect x="10" y="30" width="60" height="4" rx="2" class="svg-accent"/>
+                            <rect x="10" y="45" width="50" height="4" rx="2" class="svg-accent"/>
+                            <rect x="10" y="60" width="65" height="4" rx="2" class="svg-accent"/>
+                            <path d="M-20,45 L10,35" stroke="var(--kk-accent)" stroke-width="2" stroke-dasharray="4,4" fill="none"/>
+                            <circle cx="-20" cy="45" r="4" fill="var(--kk-accent)"/>
+                        </g>
+                    </svg>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">Deep Property Inspection</h3>
+                    <p class="card-desc">No more digging through DevTools. Instantly view box model, borders, shadows, and typography properties completely parsed and visualized.</p>
+                </div>
+            </div>
+
+            <!-- Card 2: Layout Analyzers -->
+            <div class="card">
+                <div class="card-img-container">
+                    <svg class="illustration" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
+                        <!-- Grid Layout -->
+                        <g transform="translate(40, 30)">
+                            <rect width="100" height="90" rx="6" class="svg-bg svg-border" stroke-dasharray="4,4"/>
+                            <rect x="10" y="10" width="35" height="30" rx="4" class="svg-accent" opacity="0.2"/>
+                            <rect x="55" y="10" width="35" height="30" rx="4" class="svg-accent" opacity="0.5"/>
+                            <rect x="10" y="50" width="35" height="30" rx="4" class="svg-accent" opacity="0.8"/>
+                            <rect x="55" y="50" width="35" height="30" rx="4" class="svg-accent"/>
+                        </g>
+                        <!-- Flex Layout -->
+                        <g transform="translate(160, 30)">
+                            <rect width="100" height="90" rx="6" class="svg-bg svg-border" stroke-dasharray="4,4"/>
+                            <circle cx="25" cy="45" r="12" class="svg-text" opacity="0.4"/>
+                            <circle cx="55" cy="45" r="12" class="svg-text" opacity="0.7"/>
+                            <circle cx="85" cy="45" r="12" class="svg-text" opacity="1.0"/>
+                            <path d="M10,45 L90,45" stroke="var(--kk-text-muted)" stroke-width="2" opacity="0.5" stroke-linecap="round"/>
+                        </g>
+                    </svg>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">Grid & Flexbox Analyzer</h3>
+                    <p class="card-desc">Advanced analysis for modern CSS layouts. See grid template areas, track sizes, flex-grow rules, and alignment settings at a glance.</p>
+                </div>
+            </div>
+
+            <!-- Card 3: Color Extraction -->
+            <div class="card">
+                <div class="card-img-container">
+                    <svg class="illustration" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="80" cy="75" r="40" fill="#ef4444" opacity="0.9"/>
+                        <circle cx="120" cy="75" r="40" fill="#3b82f6" opacity="0.9" style="mix-blend-mode: screen;"/>
+                        <circle cx="100" cy="110" r="40" fill="#22c55e" opacity="0.9" style="mix-blend-mode: screen;"/>
+
+                        <g transform="translate(190, 40)">
+                            <rect width="70" height="80" rx="6" class="svg-bg svg-border"/>
+                            <circle cx="35" cy="25" r="12" fill="#ef4444"/>
+                            <rect x="15" y="45" width="40" height="4" rx="2" class="svg-text" opacity="0.5"/>
+                            <circle cx="35" cy="65" r="12" fill="#3b82f6"/>
+                        </g>
+                    </svg>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">Color Palette Extraction</h3>
+                    <p class="card-desc">Automatically extract the entire color scheme used on the page. Download the palette as CSS variables, SCSS, or Design Tokens instantly.</p>
+                </div>
+            </div>
+
+            <!-- Card 4: Unified Export -->
+            <div class="card">
+                <div class="card-img-container">
+                    <svg class="illustration" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
+                        <rect x="60" y="25" width="180" height="100" rx="8" class="svg-bg svg-border"/>
+                        <path d="M150,55 L150,105" stroke="var(--kk-accent)" stroke-width="3" stroke-linecap="round"/>
+                        <path d="M135,90 L150,105 L165,90" stroke="var(--kk-accent)" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+                        <rect x="80" y="45" width="40" height="15" rx="4" class="svg-text" opacity="0.3"/>
+                        <rect x="80" y="65" width="30" height="6" rx="3" class="svg-text" opacity="0.2"/>
+                        <rect x="80" y="75" width="30" height="6" rx="3" class="svg-text" opacity="0.2"/>
+
+                        <rect x="180" y="45" width="40" height="15" rx="4" class="svg-text" opacity="0.3"/>
+                        <rect x="180" y="65" width="20" height="6" rx="3" class="svg-text" opacity="0.2"/>
+                        <rect x="180" y="75" width="40" height="6" rx="3" class="svg-text" opacity="0.2"/>
+                    </svg>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">Unified Design Reports</h3>
+                    <p class="card-desc">Export comprehensive Markdown or JSON reports containing layout specs, typography rules, color accessibility, and technology stack info.</p>
+                </div>
+            </div>
+
+            <!-- Card 5: Technology Stack -->
+            <div class="card">
+                <div class="card-img-container">
+                    <svg class="illustration" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
+                        <g transform="translate(50, 45)">
+                            <path d="M0,30 L30,0 L60,30 L60,60 L30,30 L0,60 Z" class="svg-accent" fill-opacity="0.2" stroke="var(--kk-accent)" stroke-width="2"/>
+                        </g>
+                        <g transform="translate(130, 45)">
+                            <circle cx="30" cy="30" r="25" class="svg-bg svg-border"/>
+                            <circle cx="30" cy="30" r="10" class="svg-text" opacity="0.5"/>
+                            <path d="M30,5 A25,25 0 0,1 55,30" fill="none" stroke="var(--kk-accent)" stroke-width="4" stroke-linecap="round"/>
+                        </g>
+                        <g transform="translate(210, 45)">
+                            <rect width="50" height="50" rx="10" class="svg-bg svg-border"/>
+                            <path d="M15,25 L35,25 M25,15 L25,35" stroke="var(--kk-text-secondary)" stroke-width="3" stroke-linecap="round"/>
+                        </g>
+                    </svg>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">Stack Detection</h3>
+                    <p class="card-desc">Identify the frameworks, analytics, CDNs, and CMS platforms running the site through an intelligent stack analysis engine.</p>
+                </div>
+            </div>
+
+            <!-- Card 6: Core Web Vitals -->
+            <div class="card">
+                <div class="card-img-container">
+                    <svg class="illustration" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M40,110 L80,60 L130,90 L180,30 L260,80" fill="none" stroke="var(--kk-border)" stroke-width="3" stroke-dasharray="6,6"/>
+                        <path d="M40,110 L80,60 L130,90 L180,30 L220,10" fill="none" stroke="var(--kk-accent)" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"/>
+                        <circle cx="80" cy="60" r="6" class="svg-accent"/>
+                        <circle cx="130" cy="90" r="6" class="svg-accent"/>
+                        <circle cx="180" cy="30" r="6" class="svg-accent"/>
+                        <circle cx="220" cy="10" r="6" class="svg-accent"/>
+                    </svg>
+                </div>
+                <div class="card-content">
+                    <h3 class="card-title">Core Web Vitals</h3>
+                    <p class="card-desc">Monitor Real User Metrics (RUM) including Largest Contentful Paint (LCP) and Cumulative Layout Shift (CLS) on the fly.</p>
+                </div>
+            </div>
+
+        </div>
+    </main>
+
+    <footer>
+        <p>Created by <a href="https://github.com/mafhper" target="_blank">mafhper</a> &middot; Open Source on <a href="https://github.com/mafhper/kaes-keide-inspector" target="_blank">GitHub</a></p>
+    </footer>
+
+</body>
+</html>

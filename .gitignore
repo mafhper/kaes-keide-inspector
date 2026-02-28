@@ -1,0 +1,26 @@
+# Dependencies
+node_modules/
+
+# Build output
+dist/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dev / internal
+.dev/
+.performance-reports/
+
+# Zip artifacts
+*.zip
+
+# Logs
+*.log
+
+# Bun
+bun.lock
