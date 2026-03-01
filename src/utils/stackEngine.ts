@@ -34,7 +34,7 @@ function parsePattern(str: string): Pattern {
       version,
       confidence
     };
-  } catch (e) {
+  } catch {
     // Fallback for invalid regexes
     return { regex: /$.^/, version: '', confidence: 0 };
   }
@@ -184,7 +184,7 @@ export function detectTechnologies(pageData: {
             addDetection(techName, tech, '', 100);
           }
         } else if (typeof rule === 'object') {
-          for (const [selector, _requirements] of Object.entries(rule)) {
+          for (const [selector] of Object.entries(rule)) {
             if (pageData.dom[selector]) {
               // Basic existence match for now
               addDetection(techName, tech, '', 100);

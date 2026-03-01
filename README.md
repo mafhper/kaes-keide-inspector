@@ -55,6 +55,28 @@ Hover over any element to see a floating tooltip with key properties. Click to i
 
 ---
 
+## Screenshots
+
+### Main Panel
+
+![Kaes Keid Main View](docs/images/screens/optimized-kaes_keid-main.png)
+
+### Inspector Overlay
+
+![Kaes Keid Inspector Overlay](docs/images/screens/optimized-kaes_keid-inspector.png)
+
+### Category Views
+
+| Overview | Colors |
+| --- | --- |
+| ![Overview View](docs/images/screens/optimized-kaes_keid-overview.png) | ![Colors View](docs/images/screens/optimized-kaes_keid-colors.png) |
+
+| Typography | Assets | Stack |
+| --- | --- | --- |
+| ![Typography View](docs/images/screens/optimized-kaes_keid-fontes.png) | ![Assets View](docs/images/screens/optimized-kaes_keid-assets.png) | ![Stack View](docs/images/screens/optimized-kaes_keid-stack.png) |
+
+---
+
 ## Tech Stack (yes, we eat our own dogfood)
 
 - **React 19 + TypeScript** -- Side panel UI

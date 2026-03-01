@@ -1,633 +1,317 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kaes Keid Inspector</title>
-    <link rel="icon" type="image/svg+xml" href="favicon.svg" />
-    <link rel="icon" type="image/x-icon" href="favicon.ico" />
-    <style>
-        :root {
-            --kk-bg-base: #0a0a0f;
-            --kk-bg-surface: #121216;
-            --kk-bg-raised: #1a1a1f;
-            --kk-text-primary: #f8fafc;
-            --kk-text-secondary: #94a3b8;
-            --kk-text-muted: #64748b;
-            --kk-border: rgba(255, 255, 255, 0.08);
-            --kk-accent: #8b5cf6;
-            --kk-accent-glow: rgba(139, 92, 246, 0.2);
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kaes Keid Inspector</title>
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root { --bg:#f2f2f2; --surface:#fbfbfb; --ink:#0f0f10; --muted:#6f6f73; --line:#d7d7da; --line2:#b8b8be; --dot:rgba(0,0,0,.11); }
+    * { box-sizing:border-box; margin:0; padding:0; }
+    body { font-family:"Sora","Segoe UI",sans-serif; color:var(--ink); min-height:100vh; background:radial-gradient(circle at 1px 1px, rgba(0,0,0,.06) 1px, transparent 0) 0 0/20px 20px, linear-gradient(180deg,#f7f7f7,#eeeeef); }
+    .mono { font-family:"IBM Plex Mono",monospace; letter-spacing:.04em; }
+    .site-shell,.footer-shell { width:min(1120px,calc(100% - 2rem)); margin-inline:auto; }
+    .site-shell { margin-top:1.4rem; display:grid; gap:1.2rem; }
+    .frame { border:1px solid var(--line); background:var(--surface); position:relative; overflow:hidden; }
+    .pattern-dots { background-image:radial-gradient(var(--dot) .75px,transparent .75px); background-size:10px 10px; }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
+    .hero { display:grid; grid-template-columns:1.05fr .95fr; min-height:510px; }
+    .hero-copy { padding:2.4rem; display:grid; gap:1.1rem; align-content:start; }
+    .brand { display:inline-flex; gap:.65rem; align-items:center; font-weight:700; }
+    .brand img { width:28px; height:28px; border:1px solid var(--line); border-radius:7px; background:#fff; padding:3px; }
+    .hero-kicker { margin-top:.7rem; font-size:.74rem; text-transform:uppercase; color:var(--muted); }
+    h1 { font-size:clamp(2rem,4.8vw,4.1rem); line-height:1.02; letter-spacing:-.02em; max-width:14ch; }
+    .hero p { color:var(--muted); max-width:54ch; }
+    .hero-actions { display:flex; gap:.7rem; flex-wrap:wrap; margin-top:.25rem; }
+    .btn { border:1px solid var(--line2); text-decoration:none; font-size:.84rem; font-weight:600; padding:.72rem 1rem; transition:all .18s ease; }
+    .btn:hover { transform:translateY(-1px); }
+    .btn-dark { background:#111; color:#fff; border-color:#111; }
+    .btn-ghost { color:var(--ink); background:transparent; }
+    .hero-preview { border-left:1px solid var(--line); padding:2rem; display:grid; place-items:center; }
+    .logo-stage { width:min(100%,420px); aspect-ratio:1/1; border:1px solid var(--line); display:grid; place-items:center; position:relative; background:linear-gradient(180deg,rgba(255,255,255,.84),rgba(255,255,255,.95)); }
+    .logo-stage::before { content:""; position:absolute; inset:14px; border:1px solid var(--line); }
+    .logo-stage img { width:44%; max-width:170px; background:#fff; border:1px solid var(--line); padding:10px; }
 
-        body {
-            background-color: var(--kk-bg-base);
-            color: var(--kk-text-primary);
-            line-height: 1.5;
-            overflow-x: hidden;
-        }
+    .scan-strip { padding:1rem 1.1rem; display:grid; gap:.95rem; }
+    .scan-rail { display:flex; align-items:center; gap:.6rem; min-width:0; }
+    .scan-dot { width:9px; height:9px; border-radius:50%; background:#000; }
+    .scan-label { font-size:.72rem; color:var(--muted); text-transform:uppercase; white-space:nowrap; }
+    .scan-line-solid,.scan-line-dashed { flex:1; min-width:30px; border-top:1px solid var(--line); }
+    .scan-line-dashed { flex:0 0 220px; border-top-style:dashed; border-top-color:var(--line2); }
+    .scan-metrics { list-style:none; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.72rem; }
+    .scan-metrics li { border:1px solid var(--line); padding:.75rem .85rem; min-height:72px; display:grid; align-content:space-between; gap:.35rem; }
+    .scan-metrics strong { font-size:.9rem; }
+    .scan-metrics span { font-size:.77rem; color:var(--muted); }
 
-        /* Hero Section */
-        .hero {
-            padding: 8rem 2rem 4rem;
-            text-align: center;
-            max-width: 800px;
-            margin: 0 auto;
-            position: relative;
-        }
+    .section { padding:1.7rem; display:grid; gap:1.2rem; }
+    .section-head { display:flex; justify-content:space-between; align-items:flex-end; gap:1rem; border-bottom:1px solid var(--line); padding-bottom:.9rem; }
+    .section-head h2 { font-size:clamp(1.3rem,2.6vw,2rem); line-height:1.15; }
+    .section-head p { color:var(--muted); font-size:.9rem; max-width:56ch; }
+    .eyebrow { font-size:.74rem; text-transform:uppercase; color:var(--muted); }
 
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 800px;
-            height: 800px;
-            background: radial-gradient(circle, var(--kk-accent-glow) 0%, transparent 60%);
-            z-index: -1;
-            pointer-events: none;
-        }
+    .feature-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.9rem; }
+    .feature-card { border:1px solid var(--line); min-height:220px; padding:1rem; display:grid; gap:.72rem; position:relative; }
+    .feature-card::before { content:""; position:absolute; left:.8rem; right:.8rem; top:.8rem; border-top:1px dashed var(--line2); }
+    .feature-icon { width:56px; height:56px; border:1px solid var(--line); background:#fff; display:grid; place-items:center; margin-top:.55rem; }
+    .feature-icon svg { width:30px; height:30px; stroke:#111; fill:none; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
+    .feature-card h3 { font-size:1.02rem; margin-top:.25rem; }
+    .feature-card p { color:var(--muted); font-size:.87rem; }
 
-        .hero::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 800px;
-            height: 800px;
-            background: radial-gradient(circle, var(--kk-accent-glow) 0%, transparent 60%);
-            z-index: -1;
-            pointer-events: none;
-        }
+    .steps-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.9rem; }
+    .step-card { border:1px solid var(--line); display:grid; grid-template-rows:190px 1fr; min-height:350px; }
+    .step-header { border-bottom:1px solid var(--line); position:relative; display:grid; place-items:center; padding:1rem; overflow:hidden; }
+    .step-header::before { content:""; position:absolute; left:1rem; right:1rem; top:1rem; border-top:1px dashed var(--line2); }
+    .step-content { padding:1rem; display:grid; gap:.56rem; align-content:start; }
+    .step-content h3 { font-size:1rem; line-height:1.25; }
+    .step-content p { color:var(--muted); font-size:.86rem; }
+    .step-shell { position:relative; width:72px; height:72px; display:grid; place-items:center; }
+    .step-logo { width:62px; height:62px; border-radius:12px; border:1px solid var(--line); background:#fff; padding:8px; }
+    .step-badge { position:absolute; right:-6px; bottom:-6px; width:24px; height:24px; border-radius:50%; border:2px solid #fff; background:#111; color:#fff; font-size:.72rem; font-weight:700; display:grid; place-items:center; }
 
-        .logo {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 12px;
-            font-size: 1.5rem;
-            font-weight: 800;
-            margin-bottom: 3rem;
-            letter-spacing: -0.02em;
-        }
+    .code-trigger { width:100%; height:100%; border:0; background:transparent; color:inherit; cursor:pointer; display:grid; place-items:center; gap:.7rem; }
+    .code-trigger:focus-visible { outline:2px solid #111; outline-offset:-2px; }
+    .code-hint { font-size:.73rem; text-transform:uppercase; color:var(--muted); }
+    .code-overlay { position:absolute; inset:0; z-index:4; padding:.8rem; display:grid; grid-template-rows:auto auto 1fr; gap:.6rem; background:linear-gradient(160deg,#101011,#1a1a1c); color:#efeff1; opacity:0; transform:translateY(12px); pointer-events:none; transition:opacity .2s ease, transform .2s ease; }
+    .code-overlay[data-open="true"] { opacity:1; transform:translateY(0); pointer-events:auto; }
+    .code-close { justify-self:end; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.04); color:#fff; padding:.26rem .62rem; font-size:.68rem; text-transform:uppercase; cursor:pointer; }
+    .code-title { font-size:.76rem; text-transform:uppercase; color:#c8c8ce; }
+    .code-pre { margin:0; border:1px solid rgba(255,255,255,.2); background:rgba(0,0,0,.3); padding:.7rem; overflow:auto; }
+    .code-pre code { display:block; font-family:"IBM Plex Mono",monospace; font-size:.78rem; line-height:1.45; white-space:pre-wrap; word-break:break-word; }
 
-        .logo svg {
-            width: 48px;
-            height: 48px;
-        }
+    .footer { margin-bottom:1.5rem; padding:1.2rem; display:grid; gap:.9rem; }
+    .footer-commit { border:1px solid var(--line); padding:.62rem .8rem; display:flex; gap:.55rem; align-items:center; min-width:0; background:linear-gradient(180deg,#fff,#f7f7f7); }
+    .footer-commit-dot { width:8px; height:8px; border-radius:50%; background:#000; }
+    .footer-commit-label { font-size:.71rem; text-transform:uppercase; color:var(--muted); flex:0 0 auto; }
+    .footer-commit-value { flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:.86rem; }
+    .footer-commit-link { text-decoration:none; color:#000; font-size:.79rem; font-weight:600; border-bottom:1px solid transparent; }
+    .footer-commit-link:hover { border-bottom-color:#000; }
+    .footer-meta { color:var(--muted); font-size:.84rem; }
+    .footer-meta a { color:var(--ink); text-decoration:none; border-bottom:1px solid var(--line2); }
+    .footer-meta a:hover { border-bottom-color:#000; }
 
-        h1 {
-            font-size: 4rem;
-            font-weight: 800;
-            line-height: 1.1;
-            margin-bottom: 1.5rem;
-            background: linear-gradient(to right, #fff, var(--kk-text-secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            letter-spacing: -0.02em;
-        }
-
-        .subtitle {
-            font-size: 1.25rem;
-            color: var(--kk-text-secondary);
-            margin-bottom: 3rem;
-            max-width: 600px;
-            margin-left: auto;
-            margin-right: auto;
-        }
-
-        .cta-btn {
-            display: inline-flex;
-            align-items: center;
-            gap: 0.75rem;
-            background-color: var(--kk-accent);
-            color: white;
-            text-decoration: none;
-            padding: 1rem 2rem;
-            border-radius: 12px;
-            font-size: 1.125rem;
-            font-weight: 600;
-            transition: all 0.2s ease;
-            box-shadow: 0 4px 20px var(--kk-accent-glow);
-        }
-
-        .cta-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 8px 30px rgba(139, 92, 246, 0.4);
-            filter: brightness(1.1);
-        }
-
-        /* Features & How To Use Sections */
-        .features-container,
-        .how-to-container {
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 4rem 2rem 8rem;
-        }
-
-        .section-title {
-            text-align: center;
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 4rem;
-            background: linear-gradient(to right, #fff, var(--kk-text-secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 2rem;
-        }
-
-        .card {
-            background-color: var(--kk-bg-surface);
-            border: 1px solid var(--kk-border);
-            border-radius: 20px;
-            overflow: hidden;
-            transition: transform 0.3s ease, box-shadow 0.3s ease, border-color 0.3s ease;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
-            border-color: rgba(255, 255, 255, 0.15);
-        }
-
-        .card-img-container {
-            height: 200px;
-            background-color: var(--kk-bg-raised);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-bottom: 1px solid var(--kk-border);
-            position: relative;
-            overflow: hidden;
-        }
-
-        .card-img-container::after {
-            content: '';
-            position: absolute;
-            inset: 0;
-            background: linear-gradient(to bottom, transparent, rgba(0, 0, 0, 0.1));
-            pointer-events: none;
-        }
-
-        .card-content {
-            padding: 2rem;
-        }
-
-        .card-title {
-            font-size: 1.25rem;
-            font-weight: 700;
-            margin-bottom: 0.75rem;
-            color: var(--kk-text-primary);
-        }
-
-        .card-desc {
-            color: var(--kk-text-secondary);
-            font-size: 0.95rem;
-            line-height: 1.6;
-        }
-
-        /* SVG Styles */
-        svg.illustration {
-            width: 80%;
-            height: 80%;
-        }
-
-        .svg-accent {
-            fill: var(--kk-accent);
-        }
-
-        .svg-bg {
-            fill: var(--kk-bg-surface);
-        }
-
-        .svg-border {
-            stroke: var(--kk-border);
-            stroke-width: 2;
-        }
-
-        .svg-text {
-            fill: var(--kk-text-secondary);
-        }
-
-        /* Footer */
-        footer {
-            border-top: 1px solid var(--kk-border);
-            padding: 3rem 2rem;
-            text-align: center;
-            color: var(--kk-text-muted);
-            font-size: 0.875rem;
-        }
-
-        footer a {
-            color: var(--kk-text-secondary);
-            text-decoration: none;
-            font-weight: 500;
-            transition: color 0.2s;
-        }
-
-        footer a:hover {
-            color: var(--kk-accent);
-        }
-
-        @media (max-width: 768px) {
-            h1 {
-                font-size: 3rem;
-            }
-
-            .hero {
-                padding-top: 6rem;
-            }
-        }
-    </style>
+    @media (max-width:1000px) {
+      .hero { grid-template-columns:1fr; }
+      .hero-preview { border-left:0; border-top:1px solid var(--line); }
+      .scan-metrics,.feature-grid,.steps-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    }
+    @media (max-width:680px) {
+      .site-shell,.footer-shell { width:calc(100% - 1.2rem); }
+      .hero-copy,.hero-preview,.section { padding:1.1rem; }
+      .scan-metrics,.feature-grid,.steps-grid { grid-template-columns:1fr; }
+      .section-head { flex-direction:column; align-items:flex-start; }
+      .footer-commit { flex-wrap:wrap; }
+      .footer-commit-value { white-space:normal; }
+    }
+  </style>
 </head>
-
 <body>
-
-    <header class="hero">
-        <div class="logo">
-            <svg viewBox="0 0 104 101" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <rect width="104" height="101" fill="var(--kk-accent)" rx="24" />
-                <path
-                    d="M65.5511 64.2443L65.6364 50.267H67.1705L75.0966 39.2727H88.3068L75.0114 56.4034H71.6875L65.5511 64.2443ZM54.983 72V28.3636H66.7443V72H54.983ZM75.1818 72L67.6818 59.0455L75.3523 50.6932L88.6477 72H75.1818Z"
-                    fill="var(--kk-bg-base)" />
-                <path
-                    d="M38.4489 64.2443L38.3636 50.267H36.8295L28.9034 39.2727H15.6932L28.9886 56.4034H32.3125L38.4489 64.2443ZM49.017 72V28.3636H37.2557V72H49.017ZM28.8182 72L36.3182 59.0455L28.6477 50.6932L15.3523 72H28.8182Z"
-                    fill="var(--kk-bg-base)" />
-            </svg>
-            Kaes Keid Inspector
+  <main class="site-shell">
+    <header class="hero frame">
+      <div class="hero-copy">
+        <div class="brand"><img src="favicon.svg" alt="Kaes Keid Inspector logo">Kaes Keid Inspector</div>
+        <p class="hero-kicker mono">Design inspection / stack intelligence / export</p>
+        <h1>Inspect, map and document any interface with precision.</h1>
+        <p>Analyze any webpage in seconds: inspect CSS properties, map typography and colors, browse assets, detect stack technologies, and export structured reports.</p>
+        <div class="hero-actions">
+          <a class="btn btn-dark" href="https://github.com/mafhper/kaes-keide-inspector" target="_blank" rel="noopener noreferrer">Download Source</a>
+          <a class="btn btn-ghost" href="#how-to-install">How to Install</a>
         </div>
-        <h1>Effortless Design & Tech Inspection</h1>
-        <p class="subtitle">Instantly inspect design properties, dissect color palettes, explore typography, and
-            discover the entire technology stack powering any page — all without leaving your browser.</p>
-        <a href="https://github.com/mafhper/kaes-keide-inspector" target="_blank" class="cta-btn">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                stroke-linecap="round" stroke-linejoin="round">
-                <path
-                    d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22">
-                </path>
-            </svg>
-            Download Source
-        </a>
+      </div>
+      <div class="hero-preview pattern-dots">
+        <div class="logo-stage"><img src="favicon.svg" alt="Kaes Keid Inspector mark"></div>
+      </div>
     </header>
 
-    <main class="features-container">
-        <div class="grid">
+    <section class="scan-strip frame">
+      <div class="scan-rail">
+        <span class="scan-dot" aria-hidden="true"></span>
+        <span class="scan-label mono">Analysis mode ready</span>
+        <span class="scan-line-solid" aria-hidden="true"></span>
+        <span class="scan-line-dashed" aria-hidden="true"></span>
+      </div>
+      <ul class="scan-metrics">
+        <li><strong>Overview</strong><span>Element definitions and direct export</span></li>
+        <li><strong>Colors</strong><span>Text and surface color roles</span></li>
+        <li><strong>Typography</strong><span>Hierarchy summary and full audit</span></li>
+        <li><strong>Stack</strong><span>Category mode and cloud mode</span></li>
+      </ul>
+    </section>
 
-            <!-- Card 1: Inspect Elements -->
-            <div class="card">
-                <div class="card-img-container">
-                    <svg class="illustration" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="50" y="30" width="120" height="90" rx="8" class="svg-bg svg-border" />
-                        <rect x="70" y="50" width="80" height="15" rx="4" class="svg-text" opacity="0.3" />
-                        <rect x="70" y="75" width="60" height="10" rx="4" class="svg-text" opacity="0.2" />
-
-                        <g transform="translate(190, 40)">
-                            <rect width="80" height="100" rx="6" fill="#1e1e24" class="svg-border" />
-                            <rect x="10" y="15" width="40" height="6" rx="3" fill="#fff" opacity="0.8" />
-                            <rect x="10" y="30" width="60" height="4" rx="2" class="svg-accent" />
-                            <rect x="10" y="45" width="50" height="4" rx="2" class="svg-accent" />
-                            <rect x="10" y="60" width="65" height="4" rx="2" class="svg-accent" />
-                            <path d="M-20,45 L10,35" stroke="var(--kk-accent)" stroke-width="2" stroke-dasharray="4,4"
-                                fill="none" />
-                            <circle cx="-20" cy="45" r="4" fill="var(--kk-accent)" />
-                        </g>
-                    </svg>
-                </div>
-                <div class="card-content">
-                    <h3 class="card-title">Deep Property Inspection</h3>
-                    <p class="card-desc">No more digging through DevTools. Instantly view box model, borders, shadows,
-                        and typography properties completely parsed and visualized.</p>
-                </div>
-            </div>
-
-            <!-- Card 2: Layout Analyzers -->
-            <div class="card">
-                <div class="card-img-container">
-                    <svg class="illustration" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
-                        <!-- Grid Layout -->
-                        <g transform="translate(40, 30)">
-                            <rect width="100" height="90" rx="6" class="svg-bg svg-border" stroke-dasharray="4,4" />
-                            <rect x="10" y="10" width="35" height="30" rx="4" class="svg-accent" opacity="0.2" />
-                            <rect x="55" y="10" width="35" height="30" rx="4" class="svg-accent" opacity="0.5" />
-                            <rect x="10" y="50" width="35" height="30" rx="4" class="svg-accent" opacity="0.8" />
-                            <rect x="55" y="50" width="35" height="30" rx="4" class="svg-accent" />
-                        </g>
-                        <!-- Flex Layout -->
-                        <g transform="translate(160, 30)">
-                            <rect width="100" height="90" rx="6" class="svg-bg svg-border" stroke-dasharray="4,4" />
-                            <circle cx="25" cy="45" r="12" class="svg-text" opacity="0.4" />
-                            <circle cx="55" cy="45" r="12" class="svg-text" opacity="0.7" />
-                            <circle cx="85" cy="45" r="12" class="svg-text" opacity="1.0" />
-                            <path d="M10,45 L90,45" stroke="var(--kk-text-muted)" stroke-width="2" opacity="0.5"
-                                stroke-linecap="round" />
-                        </g>
-                    </svg>
-                </div>
-                <div class="card-content">
-                    <h3 class="card-title">Grid & Flexbox Analyzer</h3>
-                    <p class="card-desc">Advanced analysis for modern CSS layouts. See grid template areas, track sizes,
-                        flex-grow rules, and alignment settings at a glance.</p>
-                </div>
-            </div>
-
-            <!-- Card 3: Color Extraction -->
-            <div class="card">
-                <div class="card-img-container">
-                    <svg class="illustration" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="80" cy="75" r="40" fill="#ef4444" opacity="0.9" />
-                        <circle cx="120" cy="75" r="40" fill="#3b82f6" opacity="0.9" style="mix-blend-mode: screen;" />
-                        <circle cx="100" cy="110" r="40" fill="#22c55e" opacity="0.9" style="mix-blend-mode: screen;" />
-
-                        <g transform="translate(190, 40)">
-                            <rect width="70" height="80" rx="6" class="svg-bg svg-border" />
-                            <circle cx="35" cy="25" r="12" fill="#ef4444" />
-                            <rect x="15" y="45" width="40" height="4" rx="2" class="svg-text" opacity="0.5" />
-                            <circle cx="35" cy="65" r="12" fill="#3b82f6" />
-                        </g>
-                    </svg>
-                </div>
-                <div class="card-content">
-                    <h3 class="card-title">Color Palette Extraction</h3>
-                    <p class="card-desc">Automatically extract the entire color scheme used on the page. Download the
-                        palette as CSS variables, SCSS, or Design Tokens instantly.</p>
-                </div>
-            </div>
-
-            <!-- Card 4: Unified Export -->
-            <div class="card">
-                <div class="card-img-container">
-                    <svg class="illustration" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="60" y="25" width="180" height="100" rx="8" class="svg-bg svg-border" />
-                        <path d="M150,55 L150,105" stroke="var(--kk-accent)" stroke-width="3" stroke-linecap="round" />
-                        <path d="M135,90 L150,105 L165,90" stroke="var(--kk-accent)" stroke-width="3" fill="none"
-                            stroke-linecap="round" stroke-linejoin="round" />
-
-                        <rect x="80" y="45" width="40" height="15" rx="4" class="svg-text" opacity="0.3" />
-                        <rect x="80" y="65" width="30" height="6" rx="3" class="svg-text" opacity="0.2" />
-                        <rect x="80" y="75" width="30" height="6" rx="3" class="svg-text" opacity="0.2" />
-
-                        <rect x="180" y="45" width="40" height="15" rx="4" class="svg-text" opacity="0.3" />
-                        <rect x="180" y="65" width="20" height="6" rx="3" class="svg-text" opacity="0.2" />
-                        <rect x="180" y="75" width="40" height="6" rx="3" class="svg-text" opacity="0.2" />
-                    </svg>
-                </div>
-                <div class="card-content">
-                    <h3 class="card-title">Unified Design Reports</h3>
-                    <p class="card-desc">Export comprehensive Markdown or JSON reports containing layout specs,
-                        typography rules, color accessibility, and technology stack info.</p>
-                </div>
-            </div>
-
-            <!-- Card 5: Technology Stack -->
-            <div class="card">
-                <div class="card-img-container">
-                    <svg class="illustration" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
-                        <g transform="translate(50, 45)">
-                            <path d="M0,30 L30,0 L60,30 L60,60 L30,30 L0,60 Z" class="svg-accent" fill-opacity="0.2"
-                                stroke="var(--kk-accent)" stroke-width="2" />
-                        </g>
-                        <g transform="translate(130, 45)">
-                            <circle cx="30" cy="30" r="25" class="svg-bg svg-border" />
-                            <circle cx="30" cy="30" r="10" class="svg-text" opacity="0.5" />
-                            <path d="M30,5 A25,25 0 0,1 55,30" fill="none" stroke="var(--kk-accent)" stroke-width="4"
-                                stroke-linecap="round" />
-                        </g>
-                        <g transform="translate(210, 45)">
-                            <rect width="50" height="50" rx="10" class="svg-bg svg-border" />
-                            <path d="M15,25 L35,25 M25,15 L25,35" stroke="var(--kk-text-secondary)" stroke-width="3"
-                                stroke-linecap="round" />
-                        </g>
-                    </svg>
-                </div>
-                <div class="card-content">
-                    <h3 class="card-title">Stack Detection</h3>
-                    <p class="card-desc">Identify the frameworks, analytics, CDNs, and CMS platforms running the site
-                        through an intelligent stack analysis engine.</p>
-                </div>
-            </div>
-
-            <!-- Card 6: Core Web Vitals -->
-            <div class="card">
-                <div class="card-img-container">
-                    <svg class="illustration" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M40,110 L80,60 L130,90 L180,30 L260,80" fill="none" stroke="var(--kk-border)"
-                            stroke-width="3" stroke-dasharray="6,6" />
-                        <path d="M40,110 L80,60 L130,90 L180,30 L220,10" fill="none" stroke="var(--kk-accent)"
-                            stroke-width="4" stroke-linecap="round" stroke-linejoin="round" />
-                        <circle cx="80" cy="60" r="6" class="svg-accent" />
-                        <circle cx="130" cy="90" r="6" class="svg-accent" />
-                        <circle cx="180" cy="30" r="6" class="svg-accent" />
-                        <circle cx="220" cy="10" r="6" class="svg-accent" />
-                    </svg>
-                </div>
-                <div class="card-content">
-                    <h3 class="card-title">Core Web Vitals</h3>
-                    <p class="card-desc">Monitor Real User Metrics (RUM) including Largest Contentful Paint (LCP) and
-                        Cumulative Layout Shift (CLS) on the fly.</p>
-                </div>
-            </div>
-
+    <section class="frame section">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow mono">Core capabilities</p>
+          <h2>Built for continuous site analysis</h2>
         </div>
-    </main>
+        <p>Kaes Keid combines design inspection and technology detection in one workflow, so you can move from visual details to stack evidence without switching tools.</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature-card pattern-dots">
+          <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="11" height="11" rx="2"></rect><path d="M7 8h5M7 11h4M7 14h2"></path><circle cx="17.5" cy="17.5" r="2.5"></circle><path d="M19.4 19.4 21 21"></path></svg></div>
+          <h3>Deep Property Inspection</h3>
+          <p>Inspect box model, spacing, borders and text styles from hovered elements without leaving the side panel.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"></rect><rect x="14" y="4" width="6" height="6" rx="1"></rect><rect x="4" y="14" width="6" height="6" rx="1"></rect><rect x="14" y="14" width="6" height="6" rx="1"></rect><path d="M4 12h16M12 4v16" stroke-dasharray="2 2"></path></svg></div>
+          <h3>Grid & Flexbox Analyzer</h3>
+          <p>See grid and flex containers, track definitions, alignments, and spacing decisions to debug layout behavior quickly.</p>
+        </article>
+        <article class="feature-card pattern-dots">
+          <div class="feature-icon"><svg viewBox="0 0 24 24"><circle cx="7" cy="8" r="2"></circle><circle cx="13.6" cy="7" r="1.8"></circle><circle cx="11" cy="14" r="2.4"></circle><path d="M17 6.8 20 10l-4.4 4.4a2.2 2.2 0 0 1-3.1 0L10.5 12"></path></svg></div>
+          <h3>Color Palette Extraction</h3>
+          <p>Separate color roles by function with compact summaries and downloadable variables for design systems.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M7 3.5h7l3 3V19a1.8 1.8 0 0 1-1.8 1.8H7A1.8 1.8 0 0 1 5.2 19V5.3A1.8 1.8 0 0 1 7 3.5Z"></path><path d="M14 3.5v3h3"></path><path d="M12 9.5v7"></path><path d="m9.5 14 2.5 2.5 2.5-2.5"></path></svg></div>
+          <h3>Unified Reports</h3>
+          <p>Generate JSON or Markdown reports with scopes per element, tab or full site in one consistent flow.</p>
+        </article>
+        <article class="feature-card pattern-dots">
+          <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M12 3.5 20 7.5 12 11.5 4 7.5 12 3.5Z"></path><path d="M4 12 12 16 20 12"></path><path d="M4 16.5 12 20.5 20 16.5"></path></svg></div>
+          <h3>Stack Detection</h3>
+          <p>Read frameworks and services in category mode or weighted cloud mode to compare confidence and frequency.</p>
+        </article>
+        <article class="feature-card">
+          <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M3.5 19.5h17"></path><path d="m4.5 16.5 4-4 3 2 4.5-5.5 3 2.5" stroke-dasharray="3 2"></path><circle cx="8.5" cy="12.5" r="1"></circle><circle cx="11.5" cy="14.5" r="1"></circle><circle cx="16" cy="9" r="1"></circle><circle cx="19" cy="11.5" r="1"></circle></svg></div>
+          <h3>Core Web Vitals</h3>
+          <p>Track key runtime metrics while inspecting page structure, connecting performance results to real UI decisions.</p>
+        </article>
+      </div>
+    </section>
 
+    <section id="how-to-install" class="frame section">
+      <div class="section-head">
+        <div><p class="eyebrow mono">Setup</p><h2>How to Install</h2></div>
+        <p>Click each card header to open command examples. The modal occupies the full header for better readability.</p>
+      </div>
+      <div class="steps-grid">
+        <article class="step-card">
+          <div class="step-header pattern-dots">
+            <button class="code-trigger" type="button" data-code-open="install-clone" aria-controls="install-clone-modal" aria-expanded="false">
+              <div class="step-shell"><img src="favicon.svg" class="step-logo" alt="Kaes Keid Inspector logo"><span class="step-badge">1</span></div>
+              <span class="code-hint mono">View commands</span>
+            </button>
+            <div class="code-overlay" id="install-clone-modal" data-code-overlay="install-clone" data-open="false" aria-hidden="true">
+              <button class="code-close mono" type="button" data-code-close>Close</button>
+              <p class="code-title mono">Clone commands</p>
+              <pre class="code-pre"><code>git clone https://github.com/mafhper/kaes-keide-inspector.git
+cd kaes-keid-inspector</code></pre>
+            </div>
+          </div>
+          <div class="step-content"><h3>1. Clone the Repository</h3><p>Download or clone the project locally to start building and testing the extension.</p></div>
+        </article>
+        <article class="step-card">
+          <div class="step-header">
+            <button class="code-trigger" type="button" data-code-open="install-build" aria-controls="install-build-modal" aria-expanded="false">
+              <div class="step-shell"><img src="favicon.svg" class="step-logo" alt="Kaes Keid Inspector logo"><span class="step-badge">2</span></div>
+              <span class="code-hint mono">View commands</span>
+            </button>
+            <div class="code-overlay" id="install-build-modal" data-code-overlay="install-build" data-open="false" aria-hidden="true">
+              <button class="code-close mono" type="button" data-code-close>Close</button>
+              <p class="code-title mono">Build commands</p>
+              <pre class="code-pre"><code>bun install
+bun run build
+
+# or using npm
+npm install
+npm run build</code></pre>
+            </div>
+          </div>
+          <div class="step-content"><h3>2. Build the Extension</h3><p>Compile TypeScript and bundle all files into <code>dist/</code> using Bun or npm.</p></div>
+        </article>
+        <article class="step-card">
+          <div class="step-header pattern-dots">
+            <button class="code-trigger" type="button" data-code-open="install-load" aria-controls="install-load-modal" aria-expanded="false">
+              <div class="step-shell"><img src="favicon.svg" class="step-logo" alt="Kaes Keid Inspector logo"><span class="step-badge">3</span></div>
+              <span class="code-hint mono">View steps</span>
+            </button>
+            <div class="code-overlay" id="install-load-modal" data-code-overlay="install-load" data-open="false" aria-hidden="true">
+              <button class="code-close mono" type="button" data-code-close>Close</button>
+              <p class="code-title mono">Load unpacked</p>
+              <pre class="code-pre"><code>chrome://extensions
+Enable "Developer mode"
+Click "Load unpacked"
+Select the dist/ folder</code></pre>
+            </div>
+          </div>
+          <div class="step-content"><h3>3. Load into Browser</h3><p>Enable Developer Mode and load the compiled extension folder from the Chrome extensions page.</p></div>
+        </article>
+      </div>
+    </section>
+
+    <section id="how-to-use" class="frame section">
+      <div class="section-head">
+        <div><p class="eyebrow mono">Run flow</p><h2>How to Use</h2></div>
+        <p>Follow this flow to inspect elements, capture design data, and generate reports with minimal interruption.</p>
+      </div>
+      <div class="steps-grid">
+        <article class="step-card"><div class="step-header pattern-dots"><div class="step-shell"><img src="favicon.svg" class="step-logo" alt="Kaes Keid Inspector logo"><span class="step-badge">1</span></div></div><div class="step-content"><h3>1. Open the Extension</h3><p>Click the Kaes Keid icon in the toolbar. The default tab starts at Stack and scans technologies.</p></div></article>
+        <article class="step-card"><div class="step-header"><div class="step-shell"><img src="favicon.svg" class="step-logo" alt="Kaes Keid Inspector logo"><span class="step-badge">2</span></div></div><div class="step-content"><h3>2. Select an Analyzer Tab</h3><p>Switch to Overview, Colors, Typography or Assets to activate contextual inspection and outputs.</p></div></article>
+        <article class="step-card"><div class="step-header pattern-dots"><div class="step-shell"><img src="favicon.svg" class="step-logo" alt="Kaes Keid Inspector logo"><span class="step-badge">3</span></div></div><div class="step-content"><h3>3. Export or Return to Stack</h3><p>Export reports in JSON or Markdown. Returning to Stack stops inspection and clears focus.</p></div></article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer-shell frame footer">
+    <div class="footer-commit" aria-live="polite">
+      <span class="footer-commit-dot" aria-hidden="true"></span>
+      <span class="footer-commit-label mono">Latest commit</span>
+      <span class="footer-commit-value" id="footer-commit-value">Checking latest update...</span>
+      <a class="footer-commit-link" id="footer-commit-link" href="#" target="_blank" rel="noopener noreferrer" hidden>View</a>
     </div>
-    </main>
+    <p class="footer-meta">Created by <a href="https://github.com/mafhper" target="_blank" rel="noopener noreferrer">mafhper</a> &middot; Open Source on <a href="https://github.com/mafhper/kaes-keide-inspector" target="_blank" rel="noopener noreferrer">GitHub</a></p>
+  </footer>
 
-    <section id="how-to-install" class="how-to-container">
-        <h2 class="section-title">How to Install</h2>
-        <div class="grid">
+  <script>
+    (() => {
+      const openButtons = Array.from(document.querySelectorAll('[data-code-open]'));
+      const overlays = Array.from(document.querySelectorAll('[data-code-overlay]'));
+      const closeButtons = Array.from(document.querySelectorAll('[data-code-close]'));
 
-            <!-- Install 1: Clone -->
-            <div class="card">
-                <div class="card-img-container">
-                    <svg class="illustration" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="50" y="30" width="200" height="90" rx="6" class="svg-bg svg-border" />
-                        <circle cx="70" cy="45" r="4" fill="#ef4444" />
-                        <circle cx="85" cy="45" r="4" fill="#eab308" />
-                        <circle cx="100" cy="45" r="4" fill="#22c55e" />
-                        <path d="M50,60 L250,60" stroke="var(--kk-border)" stroke-width="2" />
-                        <text x="70" y="85" font-family="monospace" font-size="12" fill="var(--kk-accent)">$ git clone
-                            https://github.com/...</text>
-                        <text x="70" y="105" font-family="monospace" font-size="12" fill="var(--kk-text-secondary)">$ cd
-                            kaes-keid-inspector</text>
-                    </svg>
-                </div>
-                <div class="card-content">
-                    <h3 class="card-title">1. Clone the Repository</h3>
-                    <p class="card-desc">Download or clone the source code from GitHub directly to your local machine to
-                        get started.</p>
-                </div>
-            </div>
+      const setOverlayState = (key, open) => {
+        const overlay = document.querySelector(`[data-code-overlay="${key}"]`);
+        const trigger = document.querySelector(`[data-code-open="${key}"]`);
+        if (!overlay || !trigger) return;
+        overlay.setAttribute('data-open', open ? 'true' : 'false');
+        overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
+        trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      };
 
-            <!-- Install 2: Build -->
-            <div class="card">
-                <div class="card-img-container">
-                    <svg class="illustration" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="50" y="30" width="200" height="90" rx="6" class="svg-bg svg-border" />
-                        <path d="M50,60 L250,60" stroke="var(--kk-border)" stroke-width="2" />
-                        <text x="70" y="85" font-family="monospace" font-size="12" fill="var(--kk-accent)">$ bun
-                            install</text>
-                        <text x="70" y="105" font-family="monospace" font-size="12" fill="var(--kk-text-secondary)">$
-                            bun run build</text>
+      const closeAll = () => overlays.forEach((el) => setOverlayState(el.getAttribute('data-code-overlay') || '', false));
+      openButtons.forEach((btn) => btn.addEventListener('click', () => { closeAll(); setOverlayState(btn.getAttribute('data-code-open') || '', true); }));
+      closeButtons.forEach((btn) => btn.addEventListener('click', () => closeAll()));
+      document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeAll(); });
+    })();
 
-                        <g transform="translate(220, 75)">
-                            <path d="M0,0 L20,0 L20,20 L0,20 Z" fill="none" stroke="var(--kk-accent)"
-                                stroke-width="2" />
-                            <path d="M5,10 L10,15 L25,-5" fill="none" stroke="#22c55e" stroke-width="3"
-                                stroke-linecap="round" />
-                        </g>
-                    </svg>
-                </div>
-                <div class="card-content">
-                    <h3 class="card-title">2. Build the Extension</h3>
-                    <p class="card-desc">Run the build commands using Bun or npm to compile the TypeScript, Tailwind,
-                        and React code into the <code>dist/</code> folder.</p>
-                </div>
-            </div>
+    (() => {
+      const repo = 'mafhper/kaes-keide-inspector';
+      const commitValue = document.getElementById('footer-commit-value');
+      const commitLink = document.getElementById('footer-commit-link');
+      if (!commitValue || !commitLink) return;
 
-            <!-- Install 3: Load -->
-            <div class="card">
-                <div class="card-img-container">
-                    <svg class="illustration" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="70" y="30" width="160" height="100" rx="8" class="svg-bg svg-border" />
-                        <rect x="90" y="50" width="40" height="40" rx="4" class="svg-border" fill="var(--kk-bg-base)" />
-                        <rect x="140" y="55" width="70" height="6" rx="3" class="svg-text" opacity="0.6" />
-                        <rect x="140" y="75" width="40" height="4" rx="2" class="svg-text" opacity="0.3" />
+      const commitsPage = `https://github.com/${repo}/commits`;
+      const apiUrl = `https://api.github.com/repos/${repo}/commits?per_page=1`;
+      const setFallback = () => { commitValue.textContent = 'Visit GitHub to see the latest updates.'; commitLink.href = commitsPage; commitLink.hidden = false; };
 
-                        <rect x="180" y="100" width="60" height="24" rx="12" fill="var(--kk-accent)" />
-                        <text x="210" y="116" font-family="sans-serif" font-size="10" fill="#fff" font-weight="bold"
-                            text-anchor="middle">Load unpacked</text>
-                    </svg>
-                </div>
-                <div class="card-content">
-                    <h3 class="card-title">3. Load into Browser</h3>
-                    <p class="card-desc">Navigate to <code>chrome://extensions</code>, enable Developer Mode, and select
-                        "Load unpacked" targeting the compiled <code>dist/</code> folder.</p>
-                </div>
-            </div>
-
-        </div>
-    </section>
-
-    <section id="how-to-use" class="how-to-container">
-        <h2 class="section-title">How to Use</h2>
-        <div class="grid">
-
-            <!-- Step 1 -->
-            <div class="card">
-                <div class="card-img-container">
-                    <svg class="illustration" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="40" y="30" width="220" height="100" rx="8" class="svg-bg svg-border" />
-                        <rect x="40" y="30" width="220" height="20" rx="4" class="svg-bg svg-border"
-                            fill="rgba(255,255,255,0.02)" />
-                        <circle cx="55" cy="40" r="3" fill="#ef4444" />
-                        <circle cx="65" cy="40" r="3" fill="#eab308" />
-                        <circle cx="75" cy="40" r="3" fill="#22c55e" />
-
-                        <g transform="translate(235, 34)">
-                            <path d="M0,4 L4,0 L8,4 M4,0 L4,10" stroke="var(--kk-text-secondary)" stroke-width="1.5"
-                                fill="none" />
-                            <circle cx="4" cy="5" r="8" fill="none" stroke="var(--kk-accent)" stroke-width="1.5"
-                                stroke-dasharray="2,2" />
-                        </g>
-
-                        <g transform="translate(130, 70)">
-                            <path
-                                d="M10,0 L30,0 A5,5 0 0,1 35,5 L35,25 A5,5 0 0,1 30,30 L10,30 A5,5 0 0,1 5,25 L5,5 A5,5 0 0,1 10,0 Z"
-                                class="svg-accent" opacity="0.8" />
-                            <rect x="15" y="10" width="10" height="10" fill="#fff" opacity="0.9" />
-                        </g>
-                    </svg>
-                </div>
-                <div class="card-content">
-                    <h3 class="card-title">1. Open the Extension</h3>
-                    <p class="card-desc">Click the Kaes Keid icon in your toolbar. It starts on the <b>Stack</b> tab,
-                        immediately analyzing the page's technology fingerprint.</p>
-                </div>
-            </div>
-
-            <!-- Step 2 -->
-            <div class="card">
-                <div class="card-img-container">
-                    <svg class="illustration" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
-                        <rect x="60" y="40" width="80" height="60" rx="6" class="svg-bg svg-border"
-                            stroke-dasharray="6,6" />
-                        <rect x="80" y="60" width="40" height="20" rx="2" class="svg-accent" opacity="0.2" />
-
-                        <g transform="translate(160, 40)">
-                            <rect width="100" height="80" rx="6" class="svg-bg svg-border" />
-                            <rect x="10" y="10" width="80" height="10" rx="4" class="svg-text" opacity="0.3" />
-                            <rect x="10" y="30" width="60" height="6" rx="3" class="svg-text" opacity="0.2" />
-                            <rect x="10" y="45" width="70" height="6" rx="3" class="svg-text" opacity="0.2" />
-                        </g>
-
-                        <g transform="translate(110, 80)">
-                            <path d="M0,0 L15,15 L7,17 L10,25 L5,27 L2,20 L-5,22 Z" fill="var(--kk-accent)"
-                                stroke="#fff" stroke-width="1.5" />
-                        </g>
-                    </svg>
-                </div>
-                <div class="card-content">
-                    <h3 class="card-title">2. Select an Analyzer Tab</h3>
-                    <p class="card-desc">Switch to any other tab (Overview, Colors, Type, Assets). The CSS Inspector
-                        activates automatically, enabling hover tooltips and element selection.</p>
-                </div>
-            </div>
-
-            <!-- Step 3 -->
-            <div class="card">
-                <div class="card-img-container">
-                    <svg class="illustration" viewBox="0 0 300 150" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M80,80 A30,30 0 0,1 140,80 A20,20 0 0,1 180,80 A30,30 0 0,1 160,130 L100,130 A20,20 0 0,1 80,80 Z"
-                            class="svg-bg" stroke="var(--kk-border)" stroke-width="2" />
-
-                        <g transform="translate(160, 40)">
-                            <rect width="60" height="70" rx="4" fill="var(--kk-accent)" opacity="0.1"
-                                stroke="var(--kk-accent)" stroke-width="2" />
-                            <path d="M15,20 L45,20 M15,35 L40,35 M15,50 L30,50" stroke="var(--kk-accent)"
-                                stroke-width="3" stroke-linecap="round" />
-                        </g>
-
-                        <g transform="translate(120, 60)">
-                            <line x1="10" y1="10" x2="10" y2="40" stroke="var(--kk-text-primary)" stroke-width="3"
-                                stroke-linecap="round" />
-                            <polyline points="0,30 10,40 20,30" fill="none" stroke="var(--kk-text-primary)"
-                                stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-                        </g>
-                    </svg>
-                </div>
-                <div class="card-content">
-                    <h3 class="card-title">3. Export or Go Back</h3>
-                    <p class="card-desc">Extract colors, sizes, and layout data with the export functionality.
-                        Switch back to the <b>Stack</b> tab anytime to stop the Inspector cleanly.</p>
-                </div>
-            </div>
-
-        </div>
-    </section>
-
-    <footer>
-        <p>Created by <a href="https://github.com/mafhper" target="_blank">mafhper</a> &middot; Open Source on <a
-                href="https://github.com/mafhper/kaes-keide-inspector" target="_blank">GitHub</a></p>
-    </footer>
-
+      fetch(apiUrl, { headers: { Accept: 'application/vnd.github+json' } })
+        .then((response) => { if (!response.ok) throw new Error('Unable to fetch latest commit'); return response.json(); })
+        .then((commits) => {
+          const latest = Array.isArray(commits) ? commits[0] : null;
+          if (!latest) throw new Error('No commit found');
+          const shortSha = (latest.sha || '').slice(0, 7);
+          const title = ((latest.commit?.message || '').split('\n')[0] || 'New update').trim();
+          const date = latest.commit?.author?.date ? new Date(latest.commit.author.date) : null;
+          const dateText = date ? new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(date) : 'Unknown date';
+          commitValue.textContent = `${title} (${shortSha}) - ${dateText}`;
+          commitLink.href = latest.html_url || commitsPage;
+          commitLink.hidden = false;
+        })
+        .catch(() => setFallback());
+    })();
+  </script>
 </body>
-
 </html>

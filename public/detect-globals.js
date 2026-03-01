@@ -1,14 +1,19 @@
 // detect-globals.js
 // Injected into page main world via <script src="chrome-extension://...">
-// Walks window object chains and posts results back to the content script.
-; (function () {
+// Walks window object chains and posts results back with correlation id.
+;(function () {
   try {
+    const SOURCE = 'kaes-keid-inspector';
+
     const onMessage = ({ data }) => {
-      if (!data.kaesKeid || !data.kaesKeid.chains) return;
+      const payload = data && data.kaesKeid;
+      if (!payload || payload.source !== SOURCE) return;
+      if (!Array.isArray(payload.chains) || !payload.requestId) return;
+
       window.removeEventListener('message', onMessage);
 
       const results = {};
-      for (const chain of data.kaesKeid.chains) {
+      for (const chain of payload.chains) {
         try {
           const value = chain.split('.').reduce(
             (obj, key) =>
@@ -17,17 +22,25 @@
                 : '__UNDEF__',
             window
           );
+
           if (value !== '__UNDEF__') {
-            results[chain] = typeof value === 'string' || typeof value === 'number'
-              ? value
-              : !!value;
+            results[chain] = typeof value === 'string' || typeof value === 'number' ? value : !!value;
           }
         } catch {
-          // skip inaccessible properties
+          // ignore inaccessible properties
         }
       }
 
-      window.postMessage({ kaesKeidResult: results }, '*');
+      window.postMessage(
+        {
+          kaesKeidResult: {
+            source: SOURCE,
+            requestId: payload.requestId,
+            results,
+          },
+        },
+        '*'
+      );
     };
 
     window.addEventListener('message', onMessage);
