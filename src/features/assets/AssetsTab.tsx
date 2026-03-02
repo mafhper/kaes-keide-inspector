@@ -1,7 +1,7 @@
 import { useMemo, useState } from 'react';
 import type { AssetBackgroundMode } from '../../types/preferences';
 import type { PageAsset } from '../../types/ui';
-import { isSafeDownloadUrl } from '../../utils/download';
+import { ensureFileExtension, fileNameFromUrl, inferImageExtension, isSafeDownloadUrl } from '../../utils/download';
 import { useSectionLayout } from '../../hooks/useSectionLayout';
 import { AccordionSection } from '../shared/AccordionSection';
 import { ScanningState } from '../shared/ScanningState';
@@ -80,9 +80,14 @@ function buildTree(assets: PageAsset[]): TreeNode[] {
 
 function downloadAsset(asset: PageAsset) {
   if (!isSafeDownloadUrl(asset.src)) return;
+
+  const fallbackType = asset.type && asset.type !== 'unknown' ? asset.type : 'png';
+  const extension = inferImageExtension(asset.src, fallbackType);
+  const fallbackName = `${asset.tagName.toLowerCase()}-asset.${extension}`;
+
   const a = document.createElement('a');
   a.href = asset.src;
-  a.download = '';
+  a.download = ensureFileExtension(fileNameFromUrl(asset.src, fallbackName), extension);
   a.rel = 'noreferrer';
   a.target = '_blank';
   a.click();

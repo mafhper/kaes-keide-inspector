@@ -101,6 +101,8 @@ export interface PageTech {
   version?: string;
   confidence?: number;
   frequency?: number;
+  evidence?: string[];
+  evidenceTypes?: string[];
 }
 
 export interface PageColor {

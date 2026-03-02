@@ -1,4 +1,5 @@
 import type { ScannedTech } from '../shared/types';
+import type { StackDetectionMode } from '../../types/preferences';
 
 interface GlobalProbeResult {
   [chain: string]: string | number | boolean;
@@ -58,7 +59,7 @@ async function detectGlobalsWithHandshake(chains: string[]): Promise<GlobalProbe
   });
 }
 
-export async function scanPageTechnologies(): Promise<ScannedTech> {
+export async function scanPageTechnologies(mode: StackDetectionMode = 'strict'): Promise<ScannedTech> {
   try {
     type TabData = { headers: Record<string, string[]> };
     const [{ detectTechnologies, stackDB }, tabData] = await Promise.all([
@@ -107,12 +108,11 @@ export async function scanPageTechnologies(): Promise<ScannedTech> {
       }
     }
 
-    const domResults: Record<string, boolean> = {};
+    const domResults: Record<string, Element[]> = {};
     domSelectors.forEach((selector) => {
       try {
-        if (document.querySelector(selector)) {
-          domResults[selector] = true;
-        }
+        const matches = Array.from(document.querySelectorAll(selector)).slice(0, 40);
+        if (matches.length > 0) domResults[selector] = matches;
       } catch {
         // Ignore invalid selectors from data source.
       }
@@ -120,16 +120,19 @@ export async function scanPageTechnologies(): Promise<ScannedTech> {
 
     const jsResults = await detectGlobalsWithHandshake(Array.from(jsChains));
 
-    const results = detectTechnologies({
-      url: window.location.href,
-      html,
-      headers: tabData.headers || {},
-      scripts: scriptSrcs,
-      meta: metaTags,
-      cookies,
-      js: jsResults,
-      dom: domResults,
-    });
+    const results = detectTechnologies(
+      {
+        url: window.location.href,
+        html,
+        headers: tabData.headers || {},
+        scripts: scriptSrcs,
+        meta: metaTags,
+        cookies,
+        js: jsResults,
+        dom: domResults,
+      },
+      { mode },
+    );
 
     results.sort((a, b) => b.confidence - a.confidence);
 
@@ -139,6 +142,8 @@ export async function scanPageTechnologies(): Promise<ScannedTech> {
       version: result.version,
       confidence: result.confidence,
       frequency: 1,
+      evidenceTypes: result.evidenceTypes,
+      evidence: result.evidence.map((item) => item.detail),
     }));
   } catch {
     return [];

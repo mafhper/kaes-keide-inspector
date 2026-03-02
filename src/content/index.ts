@@ -63,7 +63,8 @@ chrome.runtime.onMessage.addListener((message: { type?: string }, _sender, sendR
   }
 
   if (message.type === 'SCAN_TECHNOLOGIES') {
-    scanPageTechnologies()
+    const payload = message as { type: 'SCAN_TECHNOLOGIES'; mode?: 'strict' | 'compat' };
+    scanPageTechnologies(payload.mode === 'compat' ? 'compat' : 'strict')
       .then((techs) => sendResponse({ techs }))
       .catch((error) => sendResponse({ techs: [], error: String(error?.message || 'scan-failed') }));
     return true;

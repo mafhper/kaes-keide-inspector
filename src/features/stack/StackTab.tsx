@@ -1,5 +1,5 @@
 import { useMemo, useState } from 'react';
-import type { StackViewMode } from '../../types/preferences';
+import type { StackDetectionMode, StackViewMode } from '../../types/preferences';
 import type { PageTech } from '../../types/ui';
 import { computeTechWeight } from '../../utils/stackWeight';
 import { downloadText } from '../../utils/download';
@@ -18,12 +18,55 @@ interface StackTabProps {
   setExportFormat: (value: 'json' | 'markdown' | 'css' | 'scss' | 'json-tokens') => void;
   stackViewMode: StackViewMode;
   setStackViewMode: (mode: StackViewMode) => void;
+  stackDetectionMode: StackDetectionMode;
+  setStackDetectionMode: (mode: StackDetectionMode) => void;
   stackCategoryOrder: string[];
   setStackCategoryOrder: (order: string[]) => void;
   hiddenStackCategories: string[];
   setHiddenStackCategories: (hidden: string[]) => void;
   getSectionLayout: (key: string) => { order: string[]; hidden: string[]; collapsed: string[] };
   setSectionLayout: (key: string, layout: { order: string[]; hidden: string[]; collapsed: string[] }) => void;
+}
+
+function TechCloudItem({ tech, size }: { tech: PageTech; size: number }) {
+  return (
+    <span
+      className="group relative px-2.5 py-1 rounded-full"
+      style={{
+        fontSize: `${size}px`,
+        background: 'var(--kk-bg-raised)',
+        border: '1px solid var(--kk-border)',
+        color: 'var(--kk-text-secondary)',
+      }}
+      title={techTooltip(tech)}
+    >
+      {tech.name}
+
+      <div
+        className="absolute left-0 top-full mt-1.5 w-[280px] rounded-xl p-2.5 z-50 opacity-0 pointer-events-none transition-opacity group-hover:opacity-100"
+        style={{ background: 'var(--kk-bg-surface)', border: '1px solid var(--kk-border)', boxShadow: '0 8px 30px rgba(0,0,0,0.25)' }}
+      >
+        <div className="text-[11px] font-semibold mb-1" style={{ color: 'var(--kk-text-primary)' }}>{tech.name}</div>
+        <div className="text-[10px] mb-1" style={{ color: 'var(--kk-text-secondary)' }}>
+          {tech.category || 'Other'}{typeof tech.confidence === 'number' ? ` · conf ${tech.confidence}%` : ''}
+        </div>
+        {tech.evidenceTypes && tech.evidenceTypes.length > 0 && (
+          <div className="text-[9px] mb-1.5" style={{ color: 'var(--kk-text-muted)' }}>
+            sinais: {tech.evidenceTypes.join(', ')}
+          </div>
+        )}
+        {tech.evidence && tech.evidence.length > 0 ? (
+          <ul className="text-[10px] leading-4 list-disc pl-4 space-y-0.5" style={{ color: 'var(--kk-text-secondary)' }}>
+            {tech.evidence.slice(0, 6).map((item, index) => (
+              <li key={`${tech.name}-evidence-${index}`}>{item}</li>
+            ))}
+          </ul>
+        ) : (
+          <div className="text-[10px]" style={{ color: 'var(--kk-text-muted)' }}>No evidence details available.</div>
+        )}
+      </div>
+    </span>
+  );
 }
 
 function exportTech(pageTechs: PageTech[], format: 'json' | 'markdown') {
@@ -34,6 +77,15 @@ function exportTech(pageTechs: PageTech[], format: 'json' | 'markdown') {
 
   const markdown = '# Tech Stack\n\n' + pageTechs.map((t) => `- **${t.name}**${t.version ? ` (v${t.version})` : ''} - *${t.category}*`).join('\n');
   downloadText(markdown, 'stack-export.md', 'text/markdown');
+}
+
+function techTooltip(tech: PageTech): string {
+  const header = `${tech.name}${tech.version ? ` v${tech.version}` : ''} · ${tech.category}`;
+  const confidence = typeof tech.confidence === 'number' ? `Confidence: ${tech.confidence}%` : '';
+  const evidence = tech.evidence && tech.evidence.length > 0
+    ? `Evidence:\n- ${tech.evidence.slice(0, 5).join('\n- ')}`
+    : '';
+  return [header, confidence, evidence].filter(Boolean).join('\n');
 }
 
 function VitalsGrid({ pageVitals }: { pageVitals: Record<string, number> | null }) {
@@ -89,6 +141,8 @@ export function StackTab({
   setExportFormat,
   stackViewMode,
   setStackViewMode,
+  stackDetectionMode,
+  setStackDetectionMode,
   stackCategoryOrder,
   setStackCategoryOrder,
   hiddenStackCategories,
@@ -142,6 +196,24 @@ export function StackTab({
           style={{ color: stackViewMode === 'cloud' ? 'var(--kk-accent)' : 'var(--kk-text-secondary)', borderColor: stackViewMode === 'cloud' ? 'var(--kk-accent-glow)' : 'var(--kk-border)' }}
         >
           Cloud
+        </button>
+
+        <span className="text-[10px] uppercase font-semibold ml-1" style={{ color: 'var(--kk-text-muted)' }}>Detect</span>
+        <button
+          onClick={() => setStackDetectionMode('strict')}
+          className="text-[10px] px-2 py-1 rounded-lg border"
+          style={{ color: stackDetectionMode === 'strict' ? 'var(--kk-accent)' : 'var(--kk-text-secondary)', borderColor: stackDetectionMode === 'strict' ? 'var(--kk-accent-glow)' : 'var(--kk-border)' }}
+          title="Use stricter evidence filters to reduce false positives"
+        >
+          Strict
+        </button>
+        <button
+          onClick={() => setStackDetectionMode('compat')}
+          className="text-[10px] px-2 py-1 rounded-lg border"
+          style={{ color: stackDetectionMode === 'compat' ? 'var(--kk-accent)' : 'var(--kk-text-secondary)', borderColor: stackDetectionMode === 'compat' ? 'var(--kk-accent-glow)' : 'var(--kk-border)' }}
+          title="More permissive matching (may include more false positives)"
+        >
+          Compat
         </button>
 
         <div className="ml-auto flex items-center gap-1.5">
@@ -206,7 +278,15 @@ export function StackTab({
               >
                 <div className="p-2.5 flex flex-wrap gap-1.5">
                   {pageTechs.filter((t) => t.category === category).map((tech, idx) => (
-                    <TechItem key={`${tech.name}-${idx}`} techName={tech.name} version={tech.version} />
+                    <TechItem
+                      key={`${tech.name}-${idx}`}
+                      techName={tech.name}
+                      version={tech.version}
+                      category={tech.category}
+                      confidence={tech.confidence}
+                      evidence={tech.evidence}
+                      evidenceTypes={tech.evidenceTypes}
+                    />
                   ))}
                 </div>
               </AccordionSection>
@@ -223,19 +303,7 @@ export function StackTab({
               const weight = computeTechWeight(tech);
               const size = Math.min(28, Math.max(11, Math.round(weight / 7)));
               return (
-                <span
-                  key={`${tech.name}-${index}`}
-                  className="px-2.5 py-1 rounded-full"
-                  style={{
-                    fontSize: `${size}px`,
-                    background: 'var(--kk-bg-raised)',
-                    border: '1px solid var(--kk-border)',
-                    color: 'var(--kk-text-secondary)',
-                  }}
-                  title={`${tech.category}${tech.version ? ` · v${tech.version}` : ''}`}
-                >
-                  {tech.name}
-                </span>
+                <TechCloudItem key={`${tech.name}-${index}`} tech={tech} size={size} />
               );
             })}
           </div>

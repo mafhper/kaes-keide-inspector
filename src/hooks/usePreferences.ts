@@ -2,6 +2,14 @@ import { useEffect, useMemo, useState } from 'react';
 import type { UserPreferencesV1, SectionLayoutState } from '../types/preferences';
 import { DEFAULT_PREFERENCES, PREFERENCES_STORAGE_KEY } from '../types/preferences';
 
+function isThemeMode(value: unknown): value is UserPreferencesV1['themeMode'] {
+  return value === 'auto' || value === 'light' || value === 'dark';
+}
+
+function isStackDetectionMode(value: unknown): value is UserPreferencesV1['stackDetectionMode'] {
+  return value === 'strict' || value === 'compat';
+}
+
 function sanitizeSectionLayout(value: unknown): SectionLayoutState {
   const raw = (value ?? {}) as Partial<SectionLayoutState>;
   return {
@@ -12,14 +20,19 @@ function sanitizeSectionLayout(value: unknown): SectionLayoutState {
 }
 
 function sanitizePrefs(value: unknown): UserPreferencesV1 {
-  const raw = (value ?? {}) as Partial<UserPreferencesV1>;
+  const raw = (value ?? {}) as Partial<UserPreferencesV1> & { isDark?: unknown };
   const sectionLayouts = Object.fromEntries(
     Object.entries(raw.sectionLayouts ?? {}).map(([k, v]) => [k, sanitizeSectionLayout(v)]),
   );
+  const legacyThemeMode = typeof raw.isDark === 'boolean' ? (raw.isDark ? 'dark' : 'light') : undefined;
+  const themeMode = isThemeMode(raw.themeMode) ? raw.themeMode : legacyThemeMode ?? DEFAULT_PREFERENCES.themeMode;
+  const stackDetectionMode = isStackDetectionMode(raw.stackDetectionMode) ? raw.stackDetectionMode : DEFAULT_PREFERENCES.stackDetectionMode;
 
   return {
     ...DEFAULT_PREFERENCES,
     ...raw,
+    themeMode,
+    stackDetectionMode,
     version: 1,
     sectionLayouts,
     stackCategoryOrder: Array.isArray(raw.stackCategoryOrder) ? raw.stackCategoryOrder.filter((v): v is string => typeof v === 'string') : [],
@@ -36,7 +49,7 @@ function loadLegacyPrefs(): Promise<Partial<UserPreferencesV1>> {
 
     chrome.storage.local.get(['isDark', 'activeTab', 'exportFormat'], (legacy) => {
       resolve({
-        isDark: legacy.isDark,
+        themeMode: typeof legacy.isDark === 'boolean' ? (legacy.isDark ? 'dark' : 'light') : undefined,
         activeTab: legacy.activeTab,
         exportFormat: legacy.exportFormat,
       } as Partial<UserPreferencesV1>);

@@ -1,4 +1,5 @@
 import type { ElementData, PageAsset, PageColor, PageTech, PageTypo } from './ui';
+import type { StackDetectionMode } from './preferences';
 
 export type PanelToContentMessage =
   | { type: 'START_INSPECTION' }
@@ -7,7 +8,7 @@ export type PanelToContentMessage =
   | { type: 'SCAN_TYPOGRAPHY' }
   | { type: 'SCAN_ASSETS' }
   | { type: 'SCAN_VITALS' }
-  | { type: 'SCAN_TECHNOLOGIES' }
+  | { type: 'SCAN_TECHNOLOGIES'; mode?: StackDetectionMode }
   | { type: 'PING' };
 
 export type ContentToPanelMessage =
