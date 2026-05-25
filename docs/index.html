@@ -8,309 +8,930 @@
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Sora:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    :root { --bg:#f2f2f2; --surface:#fbfbfb; --ink:#0f0f10; --muted:#6f6f73; --line:#d7d7da; --line2:#b8b8be; --dot:rgba(0,0,0,.11); }
-    * { box-sizing:border-box; margin:0; padding:0; }
-    body { font-family:"Sora","Segoe UI",sans-serif; color:var(--ink); min-height:100vh; background:radial-gradient(circle at 1px 1px, rgba(0,0,0,.06) 1px, transparent 0) 0 0/20px 20px, linear-gradient(180deg,#f7f7f7,#eeeeef); }
-    .mono { font-family:"IBM Plex Mono",monospace; letter-spacing:.04em; }
-    .site-shell,.footer-shell { width:min(1120px,calc(100% - 2rem)); margin-inline:auto; }
-    .site-shell { margin-top:1.4rem; display:grid; gap:1.2rem; }
-    .frame { border:1px solid var(--line); background:var(--surface); position:relative; overflow:hidden; }
-    .pattern-dots { background-image:radial-gradient(var(--dot) .75px,transparent .75px); background-size:10px 10px; }
-
-    .hero { display:grid; grid-template-columns:1.05fr .95fr; min-height:510px; }
-    .hero-copy { padding:2.4rem; display:grid; gap:1.1rem; align-content:start; }
-    .brand { display:inline-flex; gap:.65rem; align-items:center; font-weight:700; }
-    .brand img { width:28px; height:28px; border:1px solid var(--line); border-radius:7px; background:#fff; padding:3px; }
-    .hero-kicker { margin-top:.7rem; font-size:.74rem; text-transform:uppercase; color:var(--muted); }
-    h1 { font-size:clamp(2rem,4.8vw,4.1rem); line-height:1.02; letter-spacing:-.02em; max-width:14ch; }
-    .hero p { color:var(--muted); max-width:54ch; }
-    .hero-actions { display:flex; gap:.7rem; flex-wrap:wrap; margin-top:.25rem; }
-    .btn { border:1px solid var(--line2); text-decoration:none; font-size:.84rem; font-weight:600; padding:.72rem 1rem; transition:all .18s ease; }
-    .btn:hover { transform:translateY(-1px); }
-    .btn-dark { background:#111; color:#fff; border-color:#111; }
-    .btn-ghost { color:var(--ink); background:transparent; }
-    .hero-preview { border-left:1px solid var(--line); padding:2rem; display:grid; place-items:center; }
-    .logo-stage { width:min(100%,420px); aspect-ratio:1/1; border:1px solid var(--line); display:grid; place-items:center; position:relative; background:linear-gradient(180deg,rgba(255,255,255,.84),rgba(255,255,255,.95)); }
-    .logo-stage::before { content:""; position:absolute; inset:14px; border:1px solid var(--line); }
-    .logo-stage img { width:44%; max-width:170px; background:#fff; border:1px solid var(--line); padding:10px; }
-
-    .scan-strip { padding:1rem 1.1rem; display:grid; gap:.95rem; }
-    .scan-rail { display:flex; align-items:center; gap:.6rem; min-width:0; }
-    .scan-dot { width:9px; height:9px; border-radius:50%; background:#000; }
-    .scan-label { font-size:.72rem; color:var(--muted); text-transform:uppercase; white-space:nowrap; }
-    .scan-line-solid,.scan-line-dashed { flex:1; min-width:30px; border-top:1px solid var(--line); }
-    .scan-line-dashed { flex:0 0 220px; border-top-style:dashed; border-top-color:var(--line2); }
-    .scan-metrics { list-style:none; display:grid; grid-template-columns:repeat(4,minmax(0,1fr)); gap:.72rem; }
-    .scan-metrics li { border:1px solid var(--line); padding:.75rem .85rem; min-height:72px; display:grid; align-content:space-between; gap:.35rem; }
-    .scan-metrics strong { font-size:.9rem; }
-    .scan-metrics span { font-size:.77rem; color:var(--muted); }
-
-    .section { padding:1.7rem; display:grid; gap:1.2rem; }
-    .section-head { display:flex; justify-content:space-between; align-items:flex-end; gap:1rem; border-bottom:1px solid var(--line); padding-bottom:.9rem; }
-    .section-head h2 { font-size:clamp(1.3rem,2.6vw,2rem); line-height:1.15; }
-    .section-head p { color:var(--muted); font-size:.9rem; max-width:56ch; }
-    .eyebrow { font-size:.74rem; text-transform:uppercase; color:var(--muted); }
-
-    .feature-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.9rem; }
-    .feature-card { border:1px solid var(--line); min-height:220px; padding:1rem; display:grid; gap:.72rem; position:relative; }
-    .feature-card::before { content:""; position:absolute; left:.8rem; right:.8rem; top:.8rem; border-top:1px dashed var(--line2); }
-    .feature-icon { width:56px; height:56px; border:1px solid var(--line); background:#fff; display:grid; place-items:center; margin-top:.55rem; }
-    .feature-icon svg { width:30px; height:30px; stroke:#111; fill:none; stroke-width:1.9; stroke-linecap:round; stroke-linejoin:round; }
-    .feature-card h3 { font-size:1.02rem; margin-top:.25rem; }
-    .feature-card p { color:var(--muted); font-size:.87rem; }
-
-    .steps-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:.9rem; }
-    .step-card { border:1px solid var(--line); display:grid; grid-template-rows:190px 1fr; min-height:350px; }
-    .step-header { border-bottom:1px solid var(--line); position:relative; display:grid; place-items:center; padding:1rem; overflow:hidden; }
-    .step-header::before { content:""; position:absolute; left:1rem; right:1rem; top:1rem; border-top:1px dashed var(--line2); }
-    .step-content { padding:1rem; display:grid; gap:.56rem; align-content:start; }
-    .step-content h3 { font-size:1rem; line-height:1.25; }
-    .step-content p { color:var(--muted); font-size:.86rem; }
-    .step-shell { position:relative; width:72px; height:72px; display:grid; place-items:center; }
-    .step-logo { width:62px; height:62px; border-radius:12px; border:1px solid var(--line); background:#fff; padding:8px; }
-    .step-badge { position:absolute; right:-6px; bottom:-6px; width:24px; height:24px; border-radius:50%; border:2px solid #fff; background:#111; color:#fff; font-size:.72rem; font-weight:700; display:grid; place-items:center; }
-
-    .code-trigger { width:100%; height:100%; border:0; background:transparent; color:inherit; cursor:pointer; display:grid; place-items:center; gap:.7rem; }
-    .code-trigger:focus-visible { outline:2px solid #111; outline-offset:-2px; }
-    .code-hint { font-size:.73rem; text-transform:uppercase; color:var(--muted); }
-    .code-overlay { position:absolute; inset:0; z-index:4; padding:.8rem; display:grid; grid-template-rows:auto auto 1fr; gap:.6rem; background:linear-gradient(160deg,#101011,#1a1a1c); color:#efeff1; opacity:0; transform:translateY(12px); pointer-events:none; transition:opacity .2s ease, transform .2s ease; }
-    .code-overlay[data-open="true"] { opacity:1; transform:translateY(0); pointer-events:auto; }
-    .code-close { justify-self:end; border:1px solid rgba(255,255,255,.25); background:rgba(255,255,255,.04); color:#fff; padding:.26rem .62rem; font-size:.68rem; text-transform:uppercase; cursor:pointer; }
-    .code-title { font-size:.76rem; text-transform:uppercase; color:#c8c8ce; }
-    .code-pre { margin:0; border:1px solid rgba(255,255,255,.2); background:rgba(0,0,0,.3); padding:.7rem; overflow:auto; }
-    .code-pre code { display:block; font-family:"IBM Plex Mono",monospace; font-size:.78rem; line-height:1.45; white-space:pre-wrap; word-break:break-word; }
-
-    .footer { margin-bottom:1.5rem; padding:1.2rem; display:grid; gap:.9rem; }
-    .footer-commit { border:1px solid var(--line); padding:.62rem .8rem; display:flex; gap:.55rem; align-items:center; min-width:0; background:linear-gradient(180deg,#fff,#f7f7f7); }
-    .footer-commit-dot { width:8px; height:8px; border-radius:50%; background:#000; }
-    .footer-commit-label { font-size:.71rem; text-transform:uppercase; color:var(--muted); flex:0 0 auto; }
-    .footer-commit-value { flex:1 1 auto; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; font-size:.86rem; }
-    .footer-commit-link { text-decoration:none; color:#000; font-size:.79rem; font-weight:600; border-bottom:1px solid transparent; }
-    .footer-commit-link:hover { border-bottom-color:#000; }
-    .footer-meta { color:var(--muted); font-size:.84rem; }
-    .footer-meta a { color:var(--ink); text-decoration:none; border-bottom:1px solid var(--line2); }
-    .footer-meta a:hover { border-bottom-color:#000; }
-
-    @media (max-width:1000px) {
-      .hero { grid-template-columns:1fr; }
-      .hero-preview { border-left:0; border-top:1px solid var(--line); }
-      .scan-metrics,.feature-grid,.steps-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+    :root {
+      --bg: #f7f4ed;
+      --panel: #fffdf8;
+      --ink: #111111;
+      --muted: #5f5a52;
+      --soft: #ded8cc;
+      --line: rgba(17, 17, 17, 0.14);
+      --dark: #070806;
+      --dark-2: #10120e;
+      --light: #f7f4ed;
+      --accent: #c9ff3c;
+      --accent-2: #8dd8ff;
+      --focus: #0b66ff;
+      --radius: 8px;
+      --radius-sm: 8px;
+      --shadow: 0 24px 70px rgba(13, 12, 10, 0.12);
     }
-    @media (max-width:680px) {
-      .site-shell,.footer-shell { width:calc(100% - 1.2rem); }
-      .hero-copy,.hero-preview,.section { padding:1.1rem; }
-      .scan-metrics,.feature-grid,.steps-grid { grid-template-columns:1fr; }
-      .section-head { flex-direction:column; align-items:flex-start; }
-      .footer-commit { flex-wrap:wrap; }
-      .footer-commit-value { white-space:normal; }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--ink);
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0;
+    }
+
+    body::selection {
+      background: var(--accent);
+      color: var(--ink);
+    }
+
+    a {
+      color: inherit;
+    }
+
+    img,
+    canvas {
+      display: block;
+      max-width: 100%;
+    }
+
+    :focus-visible {
+      outline: 3px solid var(--focus);
+      outline-offset: 3px;
+    }
+
+    .page {
+      min-height: 100vh;
+      overflow: hidden;
+    }
+
+    .hero {
+      position: relative;
+      min-height: 92vh;
+      display: grid;
+      align-items: stretch;
+      color: var(--light);
+      background: var(--dark);
+      isolation: isolate;
+    }
+
+    #hero-gl {
+      position: absolute;
+      inset: 0;
+      z-index: -3;
+      width: 100%;
+      height: 100%;
+      background: var(--dark);
+    }
+
+    .hero::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      z-index: -2;
+      background:
+        radial-gradient(circle at 50% 35%, rgba(201, 255, 60, 0.12), transparent 34%),
+        linear-gradient(180deg, rgba(7, 8, 6, 0.08), rgba(7, 8, 6, 0.92));
+      pointer-events: none;
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      inset: auto 0 0;
+      z-index: -1;
+      height: 42%;
+      background: linear-gradient(180deg, transparent, var(--bg));
+      pointer-events: none;
+    }
+
+    .nav {
+      position: relative;
+      z-index: 2;
+      width: min(1180px, calc(100% - 32px));
+      margin: 18px auto 0;
+      min-height: 58px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+    }
+
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      color: var(--light);
+      text-decoration: none;
+      font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .brand img {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: #fff;
+      padding: 3px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px;
+      border: 1px solid rgba(247, 244, 237, 0.12);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.04);
+      backdrop-filter: blur(18px);
+    }
+
+    .nav-links a {
+      color: rgba(247, 244, 237, 0.76);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 600;
+      padding: 8px 12px;
+      border-radius: 999px;
+      transition: color 160ms ease, background 160ms ease;
+    }
+
+    .nav-links a:hover {
+      color: var(--light);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .hero-content {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 92px 0 140px;
+      display: grid;
+      align-content: center;
+      min-height: calc(92vh - 76px);
+    }
+
+    .hero-copy {
+      max-width: 760px;
+    }
+
+    .eyebrow,
+    .label,
+    .kicker {
+      font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      line-height: 1.35;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      margin: 0 0 22px;
+      color: rgba(247, 244, 237, 0.72);
+    }
+
+    .eyebrow::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 999px;
+      background: var(--accent);
+      box-shadow: 0 0 22px rgba(201, 255, 60, 0.8);
+    }
+
+    h1 {
+      margin: 0;
+      max-width: 11ch;
+      font-size: 72px;
+      line-height: 1.02;
+      letter-spacing: 0;
+      font-weight: 800;
+    }
+
+    .hero-copy p:not(.eyebrow) {
+      max-width: 650px;
+      margin: 24px 0 0;
+      color: rgba(247, 244, 237, 0.74);
+      font-size: 19px;
+      line-height: 1.62;
+    }
+
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      margin-top: 32px;
+    }
+
+    .button {
+      display: inline-flex;
+      min-height: 46px;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      border: 1px solid transparent;
+      border-radius: 999px;
+      padding: 0 18px;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 700;
+      transition: transform 160ms ease, background 160ms ease, border-color 160ms ease;
+    }
+
+    .button:hover {
+      transform: translateY(-2px);
+    }
+
+    .button-primary {
+      background: var(--accent);
+      color: #0a0b08;
+    }
+
+    .button-secondary {
+      color: var(--light);
+      border-color: rgba(247, 244, 237, 0.18);
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(16px);
+    }
+
+    .hero-strip {
+      position: absolute;
+      left: 50%;
+      bottom: 28px;
+      width: min(1180px, calc(100% - 32px));
+      transform: translateX(-50%);
+      display: grid;
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 10px;
+    }
+
+    .stat {
+      min-height: 88px;
+      border: 1px solid rgba(247, 244, 237, 0.12);
+      border-radius: var(--radius-sm);
+      background: rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(18px);
+      padding: 14px;
+    }
+
+    .stat strong {
+      display: block;
+      margin-top: 12px;
+      color: var(--light);
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    .stat .label {
+      color: rgba(247, 244, 237, 0.56);
+    }
+
+    .content {
+      position: relative;
+      z-index: 2;
+      margin-top: -1px;
+      background: var(--bg);
+    }
+
+    .section {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 92px 0;
+    }
+
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(0, 0.78fr) minmax(260px, 0.22fr);
+      gap: 44px;
+      align-items: end;
+      margin-bottom: 30px;
+    }
+
+    .kicker {
+      margin: 0 0 12px;
+      color: var(--muted);
+    }
+
+    h2 {
+      margin: 0;
+      max-width: 13ch;
+      font-size: 46px;
+      line-height: 1.08;
+      font-weight: 800;
+      letter-spacing: 0;
+    }
+
+    .section-head p:last-child,
+    .feature p,
+    .install-card p,
+    .proof-copy p,
+    .footer p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.62;
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .feature {
+      min-height: 280px;
+      display: grid;
+      align-content: space-between;
+      gap: 24px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 22px;
+      box-shadow: 0 1px 0 rgba(255, 255, 255, 0.7) inset;
+    }
+
+    .feature-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .feature-index {
+      width: 36px;
+      height: 36px;
+      display: grid;
+      place-items: center;
+      border-radius: 999px;
+      background: var(--dark);
+      color: var(--light);
+      font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    .feature-tag {
+      color: var(--muted);
+      font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .feature h3 {
+      margin: 0 0 12px;
+      font-size: 25px;
+      line-height: 1.15;
+      letter-spacing: 0;
+    }
+
+    .proof {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      overflow: hidden;
+    }
+
+    .proof-main {
+      display: grid;
+      grid-template-columns: minmax(0, 0.52fr) minmax(0, 0.48fr);
+      gap: 0;
+      min-height: 430px;
+    }
+
+    .proof-copy {
+      padding: 36px;
+      display: grid;
+      align-content: space-between;
+      gap: 28px;
+      border-right: 1px solid var(--line);
+    }
+
+    .proof-copy h2 {
+      max-width: 10ch;
+    }
+
+    .proof-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 22px;
+    }
+
+    .proof-row {
+      display: grid;
+      grid-template-columns: 88px 1fr;
+      gap: 12px;
+      align-items: start;
+      padding: 12px 0;
+      border-top: 1px solid var(--line);
+    }
+
+    .proof-row span {
+      color: var(--ink);
+      font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .proof-row strong {
+      font-size: 15px;
+      line-height: 1.5;
+    }
+
+    .proof-media {
+      display: grid;
+      align-content: center;
+      gap: 14px;
+      padding: 24px;
+      background:
+        linear-gradient(90deg, rgba(17, 17, 17, 0.05) 1px, transparent 1px),
+        linear-gradient(180deg, rgba(17, 17, 17, 0.05) 1px, transparent 1px),
+        #eee8dd;
+      background-size: 26px 26px;
+    }
+
+    .shot-large,
+    .shot-row img {
+      border: 1px solid rgba(17, 17, 17, 0.18);
+      border-radius: var(--radius);
+      background: #0e0e12;
+      box-shadow: 0 16px 44px rgba(16, 15, 13, 0.18);
+    }
+
+    .shot-large {
+      width: 100%;
+      max-height: 300px;
+      object-fit: cover;
+      object-position: top left;
+    }
+
+    .shot-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .shot-row img {
+      width: 100%;
+      aspect-ratio: 16 / 10;
+      object-fit: cover;
+      object-position: top left;
+    }
+
+    .install-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 14px;
+    }
+
+    .install-card {
+      display: grid;
+      gap: 18px;
+      align-content: start;
+      min-height: 250px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      padding: 22px;
+    }
+
+    .install-card strong {
+      color: var(--ink);
+      font-size: 18px;
+      line-height: 1.2;
+    }
+
+    pre {
+      margin: 0;
+      padding: 14px;
+      overflow: auto;
+      border-radius: var(--radius);
+      background: var(--dark-2);
+      color: var(--accent);
+      font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .footer {
+      width: min(1180px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 28px 0 44px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 20px;
+      border-top: 1px solid var(--line);
+    }
+
+    .footer p {
+      max-width: 680px;
+      font-size: 14px;
+    }
+
+    .footer a:not(.button) {
+      font-weight: 700;
+      text-underline-offset: 3px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      html {
+        scroll-behavior: auto;
+      }
+
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+
+    @media (max-width: 940px) {
+      .hero {
+        min-height: auto;
+      }
+
+      .hero-content {
+        min-height: 720px;
+        padding: 74px 0 220px;
+      }
+
+      h1 {
+        font-size: 58px;
+        max-width: 10ch;
+      }
+
+      .hero-strip,
+      .section-head,
+      .proof-main {
+        grid-template-columns: 1fr;
+      }
+
+      .hero-strip {
+        position: relative;
+        left: auto;
+        bottom: auto;
+        width: min(1180px, calc(100% - 32px));
+        margin: -170px auto 0;
+        transform: none;
+      }
+
+      .proof-copy {
+        border-right: 0;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .feature-grid,
+      .install-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 680px) {
+      .nav {
+        align-items: flex-start;
+        flex-direction: column;
+      }
+
+      .nav-links {
+        width: 100%;
+        justify-content: space-between;
+      }
+
+      .nav-links a {
+        flex: 1;
+        text-align: center;
+      }
+
+      .hero-content {
+        min-height: 650px;
+        padding: 56px 0 190px;
+      }
+
+      h1 {
+        font-size: 42px;
+      }
+
+      h2 {
+        font-size: 34px;
+      }
+
+      .hero-copy p:not(.eyebrow) {
+        font-size: 17px;
+      }
+
+      .hero-strip {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .section {
+        padding: 68px 0;
+      }
+
+      .proof-copy,
+      .proof-media,
+      .feature,
+      .install-card {
+        padding: 18px;
+      }
+
+      .proof-row {
+        grid-template-columns: 1fr;
+        gap: 4px;
+      }
+
+      .shot-row {
+        grid-template-columns: 1fr;
+      }
+
+      .footer {
+        align-items: flex-start;
+        flex-direction: column;
+      }
     }
   </style>
 </head>
 <body>
-  <main class="site-shell">
-    <header class="hero frame">
-      <div class="hero-copy">
-        <div class="brand"><img src="favicon.svg" alt="Kaes Keid Inspector logo">Kaes Keid Inspector</div>
-        <p class="hero-kicker mono">Design inspection / stack intelligence / export</p>
-        <h1>Inspect, map and document any interface with precision.</h1>
-        <p>Analyze any webpage in seconds: inspect CSS properties, map typography and colors, browse assets, detect stack technologies, and export structured reports.</p>
-        <div class="hero-actions">
-          <a class="btn btn-dark" href="https://github.com/mafhper/kaes-keide-inspector" target="_blank" rel="noopener noreferrer">Download Source</a>
-          <a class="btn btn-ghost" href="#how-to-install">How to Install</a>
+  <div class="page">
+    <header class="hero">
+      <canvas id="hero-gl" aria-hidden="true"></canvas>
+      <nav class="nav" aria-label="Primary navigation">
+        <a class="brand" href="#">
+          <img src="favicon.svg" alt="Kaes Keid Inspector logo">
+          <span>Kaes Keid</span>
+        </a>
+        <div class="nav-links">
+          <a href="#features">Features</a>
+          <a href="#proof">Preview</a>
+          <a href="#install">Install</a>
+        </div>
+      </nav>
+
+      <div class="hero-content">
+        <div class="hero-copy">
+          <p class="eyebrow">Chrome / Edge extension</p>
+          <h1>Inspect any website like a design system.</h1>
+          <p>Kaes Keid reveals layout, typography, color, assets, performance signals, and stack fingerprints directly from the page you are viewing.</p>
+          <div class="hero-actions">
+            <a class="button button-primary" href="https://github.com/mafhper/kaes-keide-inspector" target="_blank" rel="noopener noreferrer">View source</a>
+            <a class="button button-secondary" href="#install">Install locally</a>
+          </div>
         </div>
       </div>
-      <div class="hero-preview pattern-dots">
-        <div class="logo-stage"><img src="favicon.svg" alt="Kaes Keid Inspector mark"></div>
+
+      <div class="hero-strip" aria-label="Product summary">
+        <div class="stat"><span class="label">Stack</span><strong>90+ technology signals</strong></div>
+        <div class="stat"><span class="label">Design</span><strong>CSS, type, colors, assets</strong></div>
+        <div class="stat"><span class="label">Reports</span><strong>JSON and Markdown export</strong></div>
+        <div class="stat"><span class="label">Runtime</span><strong>Local, no account required</strong></div>
       </div>
     </header>
 
-    <section class="scan-strip frame">
-      <div class="scan-rail">
-        <span class="scan-dot" aria-hidden="true"></span>
-        <span class="scan-label mono">Analysis mode ready</span>
-        <span class="scan-line-solid" aria-hidden="true"></span>
-        <span class="scan-line-dashed" aria-hidden="true"></span>
-      </div>
-      <ul class="scan-metrics">
-        <li><strong>Overview</strong><span>Element definitions and direct export</span></li>
-        <li><strong>Colors</strong><span>Text and surface color roles</span></li>
-        <li><strong>Typography</strong><span>Hierarchy summary and full audit</span></li>
-        <li><strong>Stack</strong><span>Category mode and cloud mode</span></li>
-      </ul>
-    </section>
-
-    <section class="frame section">
-      <div class="section-head">
-        <div>
-          <p class="eyebrow mono">Core capabilities</p>
-          <h2>Built for continuous site analysis</h2>
+    <main class="content">
+      <section class="section" id="features">
+        <div class="section-head">
+          <div>
+            <p class="kicker">What it does</p>
+            <h2>One panel for product inspection.</h2>
+          </div>
+          <p>Simple enough for quick checks, deep enough for design audits and implementation notes.</p>
         </div>
-        <p>Kaes Keid combines design inspection and technology detection in one workflow, so you can move from visual details to stack evidence without switching tools.</p>
-      </div>
-      <div class="feature-grid">
-        <article class="feature-card pattern-dots">
-          <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="11" height="11" rx="2"></rect><path d="M7 8h5M7 11h4M7 14h2"></path><circle cx="17.5" cy="17.5" r="2.5"></circle><path d="M19.4 19.4 21 21"></path></svg></div>
-          <h3>Deep Property Inspection</h3>
-          <p>Inspect box model, spacing, borders and text styles from hovered elements without leaving the side panel.</p>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon"><svg viewBox="0 0 24 24"><rect x="4" y="4" width="6" height="6" rx="1"></rect><rect x="14" y="4" width="6" height="6" rx="1"></rect><rect x="4" y="14" width="6" height="6" rx="1"></rect><rect x="14" y="14" width="6" height="6" rx="1"></rect><path d="M4 12h16M12 4v16" stroke-dasharray="2 2"></path></svg></div>
-          <h3>Grid & Flexbox Analyzer</h3>
-          <p>See grid and flex containers, track definitions, alignments, and spacing decisions to debug layout behavior quickly.</p>
-        </article>
-        <article class="feature-card pattern-dots">
-          <div class="feature-icon"><svg viewBox="0 0 24 24"><circle cx="7" cy="8" r="2"></circle><circle cx="13.6" cy="7" r="1.8"></circle><circle cx="11" cy="14" r="2.4"></circle><path d="M17 6.8 20 10l-4.4 4.4a2.2 2.2 0 0 1-3.1 0L10.5 12"></path></svg></div>
-          <h3>Color Palette Extraction</h3>
-          <p>Separate color roles by function with compact summaries and downloadable variables for design systems.</p>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M7 3.5h7l3 3V19a1.8 1.8 0 0 1-1.8 1.8H7A1.8 1.8 0 0 1 5.2 19V5.3A1.8 1.8 0 0 1 7 3.5Z"></path><path d="M14 3.5v3h3"></path><path d="M12 9.5v7"></path><path d="m9.5 14 2.5 2.5 2.5-2.5"></path></svg></div>
-          <h3>Unified Reports</h3>
-          <p>Generate JSON or Markdown reports with scopes per element, tab or full site in one consistent flow.</p>
-        </article>
-        <article class="feature-card pattern-dots">
-          <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M12 3.5 20 7.5 12 11.5 4 7.5 12 3.5Z"></path><path d="M4 12 12 16 20 12"></path><path d="M4 16.5 12 20.5 20 16.5"></path></svg></div>
-          <h3>Stack Detection</h3>
-          <p>Read frameworks and services in category mode or weighted cloud mode to compare confidence and frequency.</p>
-        </article>
-        <article class="feature-card">
-          <div class="feature-icon"><svg viewBox="0 0 24 24"><path d="M3.5 19.5h17"></path><path d="m4.5 16.5 4-4 3 2 4.5-5.5 3 2.5" stroke-dasharray="3 2"></path><circle cx="8.5" cy="12.5" r="1"></circle><circle cx="11.5" cy="14.5" r="1"></circle><circle cx="16" cy="9" r="1"></circle><circle cx="19" cy="11.5" r="1"></circle></svg></div>
-          <h3>Core Web Vitals</h3>
-          <p>Track key runtime metrics while inspecting page structure, connecting performance results to real UI decisions.</p>
-        </article>
-      </div>
-    </section>
 
-    <section id="how-to-install" class="frame section">
-      <div class="section-head">
-        <div><p class="eyebrow mono">Setup</p><h2>How to Install</h2></div>
-        <p>Click each card header to open command examples. The modal occupies the full header for better readability.</p>
-      </div>
-      <div class="steps-grid">
-        <article class="step-card">
-          <div class="step-header pattern-dots">
-            <button class="code-trigger" type="button" data-code-open="install-clone" aria-controls="install-clone-modal" aria-expanded="false">
-              <div class="step-shell"><img src="favicon.svg" class="step-logo" alt="Kaes Keid Inspector logo"><span class="step-badge">1</span></div>
-              <span class="code-hint mono">View commands</span>
-            </button>
-            <div class="code-overlay" id="install-clone-modal" data-code-overlay="install-clone" data-open="false" aria-hidden="true">
-              <button class="code-close mono" type="button" data-code-close>Close</button>
-              <p class="code-title mono">Clone commands</p>
-              <pre class="code-pre"><code>git clone https://github.com/mafhper/kaes-keide-inspector.git
-cd kaes-keid-inspector</code></pre>
+        <div class="feature-grid">
+          <article class="feature">
+            <div class="feature-top"><span class="feature-index">01</span><span class="feature-tag">Element</span></div>
+            <div>
+              <h3>Read the selected UI.</h3>
+              <p>Inspect box model, spacing, borders, shadows, filters, transitions, type, color, and contrast from hovered elements.</p>
+            </div>
+          </article>
+          <article class="feature">
+            <div class="feature-top"><span class="feature-index">02</span><span class="feature-tag">Page</span></div>
+            <div>
+              <h3>Extract the system.</h3>
+              <p>Group color roles, typography patterns, image assets, SVGs, backgrounds, and layout structure into useful summaries.</p>
+            </div>
+          </article>
+          <article class="feature">
+            <div class="feature-top"><span class="feature-index">03</span><span class="feature-tag">Stack</span></div>
+            <div>
+              <h3>Detect the build.</h3>
+              <p>Identify frontend frameworks, styling systems, analytics, CMS, infrastructure, services, and integrations from multiple signals.</p>
+            </div>
+          </article>
+        </div>
+      </section>
+
+      <section class="section" id="proof">
+        <div class="proof">
+          <div class="proof-main">
+            <div class="proof-copy">
+              <div>
+                <p class="kicker">Product preview</p>
+                <h2>A compact inspector for real pages.</h2>
+                <p>Use Stack for technology fingerprints, then switch tabs to inspect the visual layer. Export the current element, tab, or full scan when the evidence is ready.</p>
+              </div>
+              <div class="proof-list">
+                <div class="proof-row"><span>Stack</span><strong>Category and cloud views with confidence and frequency.</strong></div>
+                <div class="proof-row"><span>Type</span><strong>Font families, sizes, weights, samples, and hierarchy groups.</strong></div>
+                <div class="proof-row"><span>Assets</span><strong>Images, SVGs, and backgrounds with direct download paths.</strong></div>
+              </div>
+            </div>
+            <div class="proof-media">
+              <img class="shot-large" src="images/screens/optimized-kaes_keid-main.png" alt="Kaes Keid Inspector main panel">
+              <div class="shot-row">
+                <img src="images/screens/optimized-kaes_keid-inspector.png" alt="Kaes Keid element inspection overlay">
+                <img src="images/screens/optimized-kaes_keid-stack.png" alt="Kaes Keid stack detection screen">
+              </div>
             </div>
           </div>
-          <div class="step-content"><h3>1. Clone the Repository</h3><p>Download or clone the project locally to start building and testing the extension.</p></div>
-        </article>
-        <article class="step-card">
-          <div class="step-header">
-            <button class="code-trigger" type="button" data-code-open="install-build" aria-controls="install-build-modal" aria-expanded="false">
-              <div class="step-shell"><img src="favicon.svg" class="step-logo" alt="Kaes Keid Inspector logo"><span class="step-badge">2</span></div>
-              <span class="code-hint mono">View commands</span>
-            </button>
-            <div class="code-overlay" id="install-build-modal" data-code-overlay="install-build" data-open="false" aria-hidden="true">
-              <button class="code-close mono" type="button" data-code-close>Close</button>
-              <p class="code-title mono">Build commands</p>
-              <pre class="code-pre"><code>bun install
-bun run build
+        </div>
+      </section>
 
-# or using npm
-npm install
+      <section class="section" id="install">
+        <div class="section-head">
+          <div>
+            <p class="kicker">Local install</p>
+            <h2>Build it. Load it. Inspect.</h2>
+          </div>
+          <p>The extension is free and open source. Build locally, load the `dist/` folder, and run it on Chrome or Edge.</p>
+        </div>
+
+        <div class="install-grid">
+          <article class="install-card">
+            <strong>Clone the repository</strong>
+            <p>Get the source and move into the project folder.</p>
+            <pre><code>git clone https://github.com/mafhper/kaes-keide-inspector.git
+cd kaes-keide-inspector</code></pre>
+          </article>
+          <article class="install-card">
+            <strong>Build the extension</strong>
+            <p>Install locked dependencies and generate the browser bundle.</p>
+            <pre><code>npm ci
 npm run build</code></pre>
-            </div>
-          </div>
-          <div class="step-content"><h3>2. Build the Extension</h3><p>Compile TypeScript and bundle all files into <code>dist/</code> using Bun or npm.</p></div>
-        </article>
-        <article class="step-card">
-          <div class="step-header pattern-dots">
-            <button class="code-trigger" type="button" data-code-open="install-load" aria-controls="install-load-modal" aria-expanded="false">
-              <div class="step-shell"><img src="favicon.svg" class="step-logo" alt="Kaes Keid Inspector logo"><span class="step-badge">3</span></div>
-              <span class="code-hint mono">View steps</span>
-            </button>
-            <div class="code-overlay" id="install-load-modal" data-code-overlay="install-load" data-open="false" aria-hidden="true">
-              <button class="code-close mono" type="button" data-code-close>Close</button>
-              <p class="code-title mono">Load unpacked</p>
-              <pre class="code-pre"><code>chrome://extensions
-Enable "Developer mode"
-Click "Load unpacked"
-Select the dist/ folder</code></pre>
-            </div>
-          </div>
-          <div class="step-content"><h3>3. Load into Browser</h3><p>Enable Developer Mode and load the compiled extension folder from the Chrome extensions page.</p></div>
-        </article>
-      </div>
-    </section>
+          </article>
+          <article class="install-card">
+            <strong>Load unpacked</strong>
+            <p>Open your browser extensions page and select the compiled folder.</p>
+            <pre><code>chrome://extensions
+Developer mode
+Load unpacked: dist/</code></pre>
+          </article>
+        </div>
+      </section>
+    </main>
 
-    <section id="how-to-use" class="frame section">
-      <div class="section-head">
-        <div><p class="eyebrow mono">Run flow</p><h2>How to Use</h2></div>
-        <p>Follow this flow to inspect elements, capture design data, and generate reports with minimal interruption.</p>
-      </div>
-      <div class="steps-grid">
-        <article class="step-card"><div class="step-header pattern-dots"><div class="step-shell"><img src="favicon.svg" class="step-logo" alt="Kaes Keid Inspector logo"><span class="step-badge">1</span></div></div><div class="step-content"><h3>1. Open the Extension</h3><p>Click the Kaes Keid icon in the toolbar. The default tab starts at Stack and scans technologies.</p></div></article>
-        <article class="step-card"><div class="step-header"><div class="step-shell"><img src="favicon.svg" class="step-logo" alt="Kaes Keid Inspector logo"><span class="step-badge">2</span></div></div><div class="step-content"><h3>2. Select an Analyzer Tab</h3><p>Switch to Overview, Colors, Typography or Assets to activate contextual inspection and outputs.</p></div></article>
-        <article class="step-card"><div class="step-header pattern-dots"><div class="step-shell"><img src="favicon.svg" class="step-logo" alt="Kaes Keid Inspector logo"><span class="step-badge">3</span></div></div><div class="step-content"><h3>3. Export or Return to Stack</h3><p>Export reports in JSON or Markdown. Returning to Stack stops inspection and clears focus.</p></div></article>
-      </div>
-    </section>
-  </main>
-
-  <footer class="footer-shell frame footer">
-    <div class="footer-commit" aria-live="polite">
-      <span class="footer-commit-dot" aria-hidden="true"></span>
-      <span class="footer-commit-label mono">Latest commit</span>
-      <span class="footer-commit-value" id="footer-commit-value">Checking latest update...</span>
-      <a class="footer-commit-link" id="footer-commit-link" href="#" target="_blank" rel="noopener noreferrer" hidden>View</a>
-    </div>
-    <p class="footer-meta">Created by <a href="https://github.com/mafhper" target="_blank" rel="noopener noreferrer">mafhper</a> &middot; Open Source on <a href="https://github.com/mafhper/kaes-keide-inspector" target="_blank" rel="noopener noreferrer">GitHub</a></p>
-  </footer>
+    <footer class="footer">
+      <p>Created by <a href="https://github.com/mafhper" target="_blank" rel="noopener noreferrer">mafhper</a>. A local-first browser extension for product, design, and frontend inspection.</p>
+      <a class="button button-secondary" href="https://github.com/mafhper/kaes-keide-inspector" target="_blank" rel="noopener noreferrer">GitHub</a>
+    </footer>
+  </div>
 
   <script>
     (() => {
-      const openButtons = Array.from(document.querySelectorAll('[data-code-open]'));
-      const overlays = Array.from(document.querySelectorAll('[data-code-overlay]'));
-      const closeButtons = Array.from(document.querySelectorAll('[data-code-close]'));
+      const canvas = document.getElementById("hero-gl");
+      if (!(canvas instanceof HTMLCanvasElement)) return;
 
-      const setOverlayState = (key, open) => {
-        const overlay = document.querySelector(`[data-code-overlay="${key}"]`);
-        const trigger = document.querySelector(`[data-code-open="${key}"]`);
-        if (!overlay || !trigger) return;
-        overlay.setAttribute('data-open', open ? 'true' : 'false');
-        overlay.setAttribute('aria-hidden', open ? 'false' : 'true');
-        trigger.setAttribute('aria-expanded', open ? 'true' : 'false');
+      const gl = canvas.getContext("webgl", { antialias: true, alpha: false, powerPreference: "high-performance", preserveDrawingBuffer: true });
+      if (!gl) return;
+
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+      const vertexSource = `
+        attribute vec2 a_position;
+        void main() {
+          gl_Position = vec4(a_position, 0.0, 1.0);
+        }
+      `;
+
+      const fragmentSource = `
+        precision highp float;
+        uniform vec2 u_resolution;
+        uniform float u_time;
+
+        float hash(vec2 p) {
+          return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+        }
+
+        float noise(vec2 p) {
+          vec2 i = floor(p);
+          vec2 f = fract(p);
+          vec2 u = f * f * (3.0 - 2.0 * f);
+          return mix(
+            mix(hash(i + vec2(0.0, 0.0)), hash(i + vec2(1.0, 0.0)), u.x),
+            mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x),
+            u.y
+          );
+        }
+
+        void main() {
+          vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+          vec2 p = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / min(u_resolution.x, u_resolution.y);
+          float t = u_time * 0.07;
+
+          float gridX = smoothstep(0.012, 0.0, abs(fract(uv.x * 34.0) - 0.5));
+          float gridY = smoothstep(0.012, 0.0, abs(fract(uv.y * 20.0) - 0.5));
+          float grid = max(gridX, gridY) * 0.11;
+
+          float wave = sin((p.x * 4.5 + p.y * 2.2 + t) * 3.14159);
+          float field = noise(p * 4.2 + vec2(t, -t * 0.65));
+          float scan = smoothstep(0.018, 0.0, abs(uv.y - fract(t * 0.18 + 0.22)));
+          float lens = 1.0 - smoothstep(0.12, 0.78, length(p - vec2(0.08, 0.02)));
+
+          vec3 base = vec3(0.027, 0.032, 0.024);
+          vec3 green = vec3(0.79, 1.0, 0.235);
+          vec3 blue = vec3(0.55, 0.85, 1.0);
+          vec3 warm = vec3(1.0, 0.95, 0.84);
+
+          vec3 color = base;
+          color += green * (0.055 + 0.08 * wave) * lens;
+          color += blue * field * 0.06;
+          color += warm * grid;
+          color += green * scan * 0.34;
+          color *= 1.0 - smoothstep(0.45, 0.98, length(p)) * 0.65;
+
+          gl_FragColor = vec4(color, 1.0);
+        }
+      `;
+
+      const compile = (type, source) => {
+        const shader = gl.createShader(type);
+        if (!shader) return null;
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+          gl.deleteShader(shader);
+          return null;
+        }
+        return shader;
       };
 
-      const closeAll = () => overlays.forEach((el) => setOverlayState(el.getAttribute('data-code-overlay') || '', false));
-      openButtons.forEach((btn) => btn.addEventListener('click', () => { closeAll(); setOverlayState(btn.getAttribute('data-code-open') || '', true); }));
-      closeButtons.forEach((btn) => btn.addEventListener('click', () => closeAll()));
-      document.addEventListener('keydown', (event) => { if (event.key === 'Escape') closeAll(); });
-    })();
+      const vertex = compile(gl.VERTEX_SHADER, vertexSource);
+      const fragment = compile(gl.FRAGMENT_SHADER, fragmentSource);
+      if (!vertex || !fragment) return;
 
-    (() => {
-      const repo = 'mafhper/kaes-keide-inspector';
-      const commitValue = document.getElementById('footer-commit-value');
-      const commitLink = document.getElementById('footer-commit-link');
-      if (!commitValue || !commitLink) return;
+      const program = gl.createProgram();
+      if (!program) return;
+      gl.attachShader(program, vertex);
+      gl.attachShader(program, fragment);
+      gl.linkProgram(program);
+      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return;
+      gl.useProgram(program);
 
-      const commitsPage = `https://github.com/${repo}/commits`;
-      const apiUrl = `https://api.github.com/repos/${repo}/commits?per_page=1`;
-      const setFallback = () => { commitValue.textContent = 'Visit GitHub to see the latest updates.'; commitLink.href = commitsPage; commitLink.hidden = false; };
+      const buffer = gl.createBuffer();
+      gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+      gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]), gl.STATIC_DRAW);
 
-      fetch(apiUrl, { headers: { Accept: 'application/vnd.github+json' } })
-        .then((response) => { if (!response.ok) throw new Error('Unable to fetch latest commit'); return response.json(); })
-        .then((commits) => {
-          const latest = Array.isArray(commits) ? commits[0] : null;
-          if (!latest) throw new Error('No commit found');
-          const shortSha = (latest.sha || '').slice(0, 7);
-          const title = ((latest.commit?.message || '').split('\n')[0] || 'New update').trim();
-          const date = latest.commit?.author?.date ? new Date(latest.commit.author.date) : null;
-          const dateText = date ? new Intl.DateTimeFormat('en-US', { dateStyle: 'medium' }).format(date) : 'Unknown date';
-          commitValue.textContent = `${title} (${shortSha}) - ${dateText}`;
-          commitLink.href = latest.html_url || commitsPage;
-          commitLink.hidden = false;
-        })
-        .catch(() => setFallback());
+      const position = gl.getAttribLocation(program, "a_position");
+      gl.enableVertexAttribArray(position);
+      gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
+
+      const resolution = gl.getUniformLocation(program, "u_resolution");
+      const time = gl.getUniformLocation(program, "u_time");
+      let start = performance.now();
+
+      const resize = () => {
+        const rect = canvas.getBoundingClientRect();
+        const ratio = Math.min(window.devicePixelRatio || 1, 2);
+        const width = Math.max(1, Math.floor(rect.width * ratio));
+        const height = Math.max(1, Math.floor(rect.height * ratio));
+        if (canvas.width !== width || canvas.height !== height) {
+          canvas.width = width;
+          canvas.height = height;
+        }
+        gl.viewport(0, 0, width, height);
+        gl.uniform2f(resolution, width, height);
+      };
+
+      const draw = () => {
+        resize();
+        const elapsed = reduceMotion.matches ? 1200 : performance.now() - start;
+        gl.uniform1f(time, elapsed * 0.001);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
+        if (!reduceMotion.matches) window.requestAnimationFrame(draw);
+      };
+
+      draw();
+      window.addEventListener("resize", resize);
+      reduceMotion.addEventListener("change", () => {
+        start = performance.now();
+        draw();
+      });
     })();
   </script>
 </body>
