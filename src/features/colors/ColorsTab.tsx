@@ -31,9 +31,9 @@ interface ContrastPair {
 }
 
 function exportPalette(pageColors: PageColor[], exportFormat: ColorsTabProps['exportFormat']) {
-  let content = '';
+  let content: string;
   let filename = 'palette';
-  let mime = 'text/plain';
+  let mime: string;
 
   if (exportFormat === 'css') {
     content = ':root {\n' + pageColors.map((c, i) => `  --color-${i + 1}: ${c.hex};`).join('\n') + '\n}';
