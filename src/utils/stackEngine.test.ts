@@ -15,6 +15,15 @@ function basePageData() {
 }
 
 describe('stackEngine DOM precision', () => {
+  it('preserves escaped slashes and backslashes in bundled detection patterns', () => {
+    const result = detectTechnologies({
+      ...basePageData(),
+      scripts: ['https://example.com/wp-content/themes/site/app.js'],
+    });
+
+    expect(result.some((tech) => tech.name === 'WordPress')).toBe(true);
+  });
+
   it('does not detect Headless UI when button exists without matching id pattern', () => {
     const button = document.createElement('button');
     button.id = 'submit';

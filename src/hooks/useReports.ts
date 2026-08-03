@@ -137,7 +137,7 @@ export function buildReport(
 }
 
 function escapeCell(input: string): string {
-  return input.replace(/\|/g, '\\|').replace(/\n/g, ' ').trim();
+  return input.replace(/\\/g, '\\\\').replace(/\|/g, '\\|').replace(/\n/g, ' ').trim();
 }
 
 function colorTokenName(color: PageColor, index: number): string {

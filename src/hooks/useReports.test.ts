@@ -83,4 +83,19 @@ describe('buildReport', () => {
     expect(markdown).toContain('| Token | HEX | RGB | Roles | Usage |');
     expect(markdown).not.toContain('```json');
   });
+
+  it('escapes backslashes, table separators, and newlines in markdown cells', () => {
+    const report = buildReport(
+      null,
+      pageTechs,
+      pageColors,
+      [{ ...pageTypography[0], sample: 'A\\B | C\nD' }],
+      pageAssets,
+      null,
+      'site',
+      'typography',
+    );
+
+    expect(toMarkdown(report)).toContain(String.raw`A\\B \| C D`);
+  });
 });
