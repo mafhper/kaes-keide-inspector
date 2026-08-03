@@ -43,7 +43,7 @@ function parsePattern(str: string): Pattern {
 
   try {
     return {
-      regex: new RegExp(regexStr.replace(/\\/g, '\\').replace(/\//g, '\\/'), 'i'),
+      regex: new RegExp(regexStr, 'i'),
       version,
       confidence
     };

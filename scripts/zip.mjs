@@ -1,4 +1,4 @@
-import { execSync } from 'child_process';
+import { execFileSync } from 'child_process';
 import fs from 'fs';
 import path from 'path';
 
@@ -12,9 +12,18 @@ if (fs.existsSync(zipFile)) {
 try {
   console.log('Zipping dist/ folder...');
   if (process.platform === 'win32') {
-    execSync(`powershell -ExecutionPolicy Bypass -Command "Compress-Archive -Path dist\\* -DestinationPath ${zipFile} -Force"`);
+    execFileSync('powershell', [
+      '-NoProfile',
+      '-NonInteractive',
+      '-ExecutionPolicy',
+      'Bypass',
+      '-Command',
+      "& { param([string]$Source, [string]$Destination) Compress-Archive -Path (Join-Path $Source '*') -DestinationPath $Destination -Force }",
+      distDir,
+      zipFile,
+    ]);
   } else {
-    execSync(`cd dist && zip -r ../kaes-keid-inspector.zip *`);
+    execFileSync('zip', ['-r', zipFile, ...fs.readdirSync(distDir)], { cwd: distDir });
   }
   console.log(`Successfully created kaes-keid-inspector.zip (${fs.statSync(zipFile).size} bytes)`);
 } catch (error) {
