@@ -38,8 +38,21 @@ Hover over any element to see a floating tooltip with key properties. Click to i
 
 ## Install
 
-1. Download or clone this repo
-2. Run `bun install && bun run build`
+### From a Release (end user)
+
+No build step required. Head to the [Releases](https://github.com/mafhper/kaes-keide-inspector/releases)
+page, download the latest `kaes-keide-inspector-vX.Y.Z.zip` asset, and extract it
+to a local folder.
+
+1. Open `chrome://extensions/` or `edge://extensions/`
+2. Enable **Developer Mode**
+3. Click **Load unpacked** and select the extracted folder
+4. Click the Kaes Keid icon in your toolbar -- done!
+
+### From source (developer)
+
+1. Clone this repo
+2. Run `npm install && npm run build`
 3. Open `chrome://extensions/` or `edge://extensions/`
 4. Enable **Developer Mode**
 5. Click **Load unpacked** and select the `dist/` folder
