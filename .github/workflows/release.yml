@@ -1,0 +1,171 @@
+name: Release Extension
+
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+    inputs:
+      tag:
+        description: "Existing version tag to release"
+        required: true
+        type: string
+
+permissions:
+  contents: write
+
+concurrency:
+  group: "release-${{ github.ref }}"
+  cancel-in-progress: false
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref }}
+          persist-credentials: false
+
+      - name: Setup Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22"
+          cache: "npm"
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Resolve release version
+        id: version
+        env:
+          INPUT_TAG: ${{ github.event_name == 'workflow_dispatch' && inputs.tag || github.ref_name }}
+        run: |
+          set -euo pipefail
+
+          tag="$INPUT_TAG"
+          version="${tag#v}"
+
+          if [[ "$tag" != v* || ! "$version" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid release tag: $tag"
+            echo "Expected format: vX.Y.Z"
+            exit 1
+          fi
+
+          package_version="$(node -p "require('./package.json').version")"
+          manifest_version="$(node -p "require('./manifest.json').version")"
+
+          if [[ "$package_version" != "$version" ]]; then
+            echo "package.json version ($package_version) does not match tag ($version)"
+            exit 1
+          fi
+
+          if [[ "$manifest_version" != "$version" ]]; then
+            echo "manifest.json version ($manifest_version) does not match tag ($version)"
+            exit 1
+          fi
+
+          echo "tag=$tag" >> "$GITHUB_OUTPUT"
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Test
+        run: npm test
+
+      - name: Build extension
+        run: npm run build
+
+      - name: Prepare release archive
+        env:
+          VERSION: ${{ steps.version.outputs.version }}
+        run: |
+          set -euo pipefail
+
+          source_zip="kaes-keid-inspector.zip"
+          release_zip="kaes-keide-inspector-v${VERSION}.zip"
+
+          test -f "$source_zip"
+          mv "$source_zip" "$release_zip"
+          unzip -t "$release_zip"
+
+          echo "release_zip=$release_zip" >> "$GITHUB_OUTPUT"
+        id: archive
+
+      - name: Build release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
+          REPOSITORY: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+
+          notes_file=".github/release-notes/${TAG}.md"
+          image="docs/images/screens/optimized-kaes_keid-main.png"
+          version_image="docs/images/releases/release-${VERSION}.png"
+
+          if [[ -f "$version_image" ]]; then
+            image="$version_image"
+          fi
+
+          image_url="https://raw.githubusercontent.com/${REPOSITORY}/${TAG}/${image}"
+
+          generated="$(gh api --method POST "repos/${REPOSITORY}/releases/generate-notes" \
+            -f tag_name="$TAG" \
+            -f target_commitish="main" \
+            --jq '.body')"
+
+          {
+            echo "<p align=\"center\"><img src=\"${image_url}\" width=\"960\" alt=\"Kaes Keid Inspector\"></p>"
+            echo
+            echo "Kaes Keid Inspector ${VERSION} — extensão para inspeção de CSS/HTML, design e stack tecnológico diretamente no navegador."
+            echo
+            echo "## O que tem de novo nesta versão"
+            if [[ -f "$notes_file" ]]; then
+              cat "$notes_file"
+            else
+              echo "Nenhuma nota específica foi adicionada para esta versão."
+            fi
+            echo
+            echo "## Instalação"
+            echo
+            echo "1. Baixe **kaes-keide-inspector-v${VERSION}.zip** nos assets desta Release."
+            echo "2. Extraia o arquivo em uma pasta local."
+            echo "3. Abra \`chrome://extensions/\` ou \`edge://extensions/\`."
+            echo "4. Ative **Developer mode**."
+            echo "5. Clique em **Load unpacked** e selecione a pasta extraída."
+            echo
+            echo "<details>"
+            echo "<summary>Outros detalhes de instalação</summary>"
+            echo
+            echo "O arquivo publicado contém diretamente o conteúdo compilado de \`dist/\`. Não é necessário instalar Node.js, Bun ou executar uma etapa de build local."
+            echo
+            echo "</details>"
+            echo
+            echo "---"
+            echo
+            echo "<details>"
+            echo "<summary>Lista de mudanças (gerada automaticamente)</summary>"
+            echo
+            echo "$generated"
+            echo
+            echo "</details>"
+          } > release-body.md
+
+      - name: Create GitHub Release and upload archive
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: ${{ steps.version.outputs.tag }}
+          VERSION: ${{ steps.version.outputs.version }}
+          RELEASE_ZIP: ${{ steps.archive.outputs.release_zip }}
+        run: |
+          set -euo pipefail
+
+          gh release create "$TAG" \
+            "$RELEASE_ZIP" \
+            --title "Kaes Keid Inspector v${VERSION}" \
+            --notes-file release-body.md \
+            --target main
