@@ -136,9 +136,9 @@ git push origin vX.Y.Z
 ## Manual run
 
 `Release Extension` can also be triggered with `workflow_dispatch`, providing an
-existing tag. This is useful to re-publish an already-created Git tag without
-creating a new one. The workflow is not idempotent: it fails if the Release
-already exists.
+existing tag. The workflow is idempotent: if the Release already exists it is
+updated in place (title, notes and the ZIP asset are refreshed); otherwise a new
+Release is created.
 
 ## Rules
 
