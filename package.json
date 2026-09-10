@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:watch": "vitest",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "release:validate": "node scripts/validate-extension.mjs"
   },
   "dependencies": {
     "@lucide/lab": "^0.2.0",
