@@ -27,7 +27,7 @@
     "release_name": "kaes-keide-inspector-v{version}.zip",
     "validate": [
       "unzip -t \"$1\"",
-      "unzip -l \"$1\" | grep -qx 'manifest.json'",
+      "unzip -l \"$1\" | grep -q 'manifest.json'",
       "! unzip -l \"$1\" | grep -q 'node_modules/'",
       "! unzip -l \"$1\" | grep -q '\\.git/'",
       "! unzip -l \"$1\" | grep -q '\\.map$'"
